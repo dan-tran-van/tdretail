@@ -9,9 +9,18 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@base-ui/react": "^1.9.0",
+    "@google/genai": "^2.29.0",
+    "@sendgrid/mail": "^8.1.6",
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.4.0",
+    "firebase-admin": "^14.5.0",
+    "lucide-react": "^1.56.0",
     "next": "16.4.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "shadcn": "^4.21.4",
+    "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
@@ -23,5 +32,12 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@11.1.2"
+  "packageManager": "pnpm@11.1.2",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@firebase/util",
+      "@google/genai",
+      "protobufjs"
+    ]
+  }
 }
