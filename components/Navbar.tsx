@@ -16,12 +16,13 @@ export function Navbar() {
         {/* Brand Logo & Platform Title */}
         <div className="flex items-center gap-3">
           <NextLink href="/" className="flex items-center gap-2 group">
-            <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shadow-xs group-hover:opacity-90 transition-opacity">
-              <Sparkles className="h-4 w-4" />
+            <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground font-bold flex items-center justify-center shadow-xs group-hover:opacity-90 transition-opacity">
+              {/* <Sparkles className="h-4 w-4" /> */}
+              TD
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-base tracking-tight text-foreground">
-                TD Retail
+                Retail
               </span>
               <span className="text-xs text-muted-foreground hidden sm:inline border-l border-border pl-2">
                 Customer Support AI
