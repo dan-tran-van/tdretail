@@ -448,9 +448,8 @@ function ConversationThreadInner() {
                 return (
                   <div
                     key={msg.id}
-                    className={`flex flex-col ${isCustomer ? 'items-end' : 'items-start'} max-w-[85%] sm:max-w-[75%] ${
-                      isCustomer ? 'ml-auto' : 'mr-auto'
-                    }`}
+                    className={`flex flex-col ${isCustomer ? 'items-end' : 'items-start'} max-w-[85%] sm:max-w-[75%] ${isCustomer ? 'ml-auto' : 'mr-auto'
+                      }`}
                   >
                     {/* Sender Label */}
                     <div className="flex items-center gap-1.5 mb-1 px-1 text-[11px] text-muted-foreground">
@@ -486,11 +485,10 @@ function ConversationThreadInner() {
 
                     {/* Message Bubble */}
                     <div
-                      className={`p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
-                        isCustomer
-                          ? 'bg-primary text-primary-foreground rounded-br-xs shadow-xs'
-                          : 'bg-card border border-border text-card-foreground rounded-bl-xs shadow-xs'
-                      }`}
+                      className={`p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${isCustomer
+                        ? 'bg-primary-foreground text-foreground rounded-br-xs shadow-xs'
+                        : 'bg-card border border-border text-card-foreground rounded-bl-xs shadow-xs'
+                        }`}
                     >
                       <div className="whitespace-pre-wrap">{msg.content}</div>
                     </div>
