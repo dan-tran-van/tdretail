@@ -43,6 +43,8 @@ import {
 } from '@/components/ui/dialog';
 import { Conversation, Customer, Merchant, Order } from '@/lib/types';
 
+import { getCookie, setCookie } from 'cookies-next';
+
 interface ModernAppShellProps {
   children: React.ReactNode;
   activeConversationId?: string;
@@ -57,25 +59,29 @@ export function ModernAppShell({
   const pathname = usePathname();
   const router = useRouter();
 
-  // Sidebar expanded state (persisted in localStorage)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  // Load persisted state on mount
-  useEffect(() => {
+  // Sidebar expanded state: initialize directly from cookie / localStorage to prevent layout jumping/flickering on navigation
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
     try {
+      const cookieVal = getCookie('tdretail_sidebar_open');
+      if (cookieVal !== undefined && cookieVal !== null) {
+        return String(cookieVal) === 'true';
+      }
       const saved = localStorage.getItem('tdretail_sidebar_open');
       if (saved !== null) {
-        setIsSidebarOpen(saved === 'true');
+        return saved === 'true';
       }
     } catch (e) {
-      // localStorage not accessible
+      // fallback
     }
-  }, []);
+    return true;
+  });
 
   const toggleSidebar = (open: boolean) => {
     setIsSidebarOpen(open);
     try {
       localStorage.setItem('tdretail_sidebar_open', String(open));
+      setCookie('tdretail_sidebar_open', String(open), { maxAge: 60 * 60 * 24 * 365, path: '/' });
     } catch (e) {
       // ignore
     }
