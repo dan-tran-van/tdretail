@@ -57,6 +57,8 @@ export default function GmailStyleOutboxPage() {
   const [starredIds, setStarredIds] = useState<Record<string, boolean>>({});
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [availableCustomers, setAvailableCustomers] = useState<Customer[]>([]);
+  const [isPersonaDialogOpen, setIsPersonaDialogOpen] = useState(false);
+  const [isSwitchingPersona, setIsSwitchingPersona] = useState(false);
 
   // Reply simulation modal state
   const [isSimulating, setIsSimulating] = useState(false);
@@ -79,6 +81,8 @@ export default function GmailStyleOutboxPage() {
 
   const switchCustomer = async (customerId: string) => {
     try {
+      setIsSwitchingPersona(true);
+      document.cookie = `td_customer_id=${customerId}; path=/; max-age=604800`;
       const res = await fetch('/api/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -89,11 +93,13 @@ export default function GmailStyleOutboxPage() {
         if (data.customer) {
           setCustomer(data.customer);
         }
-        await loadEmails();
+        setIsPersonaDialogOpen(false);
         window.location.reload();
       }
     } catch (e) {
       console.error('Error switching persona:', e);
+    } finally {
+      setIsSwitchingPersona(false);
     }
   };
 
@@ -235,48 +241,25 @@ export default function GmailStyleOutboxPage() {
           </NextLink>
 
           {/* Persona Switcher in Outbox */}
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className="flex items-center gap-2 p-1 pl-2 pr-2.5 rounded-full hover:bg-muted/80 border border-border transition-colors text-left outline-none"
-              title="Switch Demo Persona"
-            >
-              <Avatar className="h-6 w-6 border border-border">
-                <AvatarImage src={customer?.avatarUrl} />
-                <AvatarFallback className="text-[10px] bg-muted font-bold">
-                  {customer?.name?.charAt(0) || 'C'}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-xs font-semibold text-foreground hidden md:inline max-w-[100px] truncate">
-                {customer?.name || 'Customer'}
-              </span>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent side="bottom" align="end" className="w-64 p-1.5 z-50">
-              <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
-                Demo Shopper Persona
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {availableCustomers.map((cust) => (
-                <DropdownMenuItem
-                  key={cust.id}
-                  onClick={() => switchCustomer(cust.id)}
-                  className="gap-2.5 text-xs py-2 cursor-pointer"
-                >
-                  <Avatar className="h-6 w-6">
-                    <AvatarImage src={cust.avatarUrl} />
-                    <AvatarFallback className="text-[10px]">{cust.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <span className="font-medium text-foreground truncate">{cust.name}</span>
-                    <span className="text-[10px] text-muted-foreground truncate">{cust.email}</span>
-                  </div>
-                  {cust.id === customer?.id && (
-                    <span className="text-[10px] text-primary font-bold">Active</span>
-                  )}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <button
+            type="button"
+            onClick={() => setIsPersonaDialogOpen(true)}
+            className="flex items-center gap-2 p-1 pl-2 pr-2.5 rounded-full hover:bg-muted/80 border border-border transition-colors text-left outline-none cursor-pointer"
+            title="Click to Switch Demo Persona"
+          >
+            <Avatar className="h-6 w-6 border border-border">
+              <AvatarImage src={customer?.avatarUrl} />
+              <AvatarFallback className="text-[10px] bg-muted font-bold">
+                {customer?.name?.charAt(0) || 'C'}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-xs font-semibold text-foreground hidden md:inline max-w-[100px] truncate">
+              {customer?.name || 'Customer'}
+            </span>
+            <Badge variant="outline" className="text-[9px] h-3.5 px-1 font-normal text-muted-foreground">
+              Switch
+            </Badge>
+          </button>
         </div>
       </header>
 
@@ -643,6 +626,64 @@ export default function GmailStyleOutboxPage() {
                 <span>Send Inbound Reply Webhook</span>
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Switch Demo Persona Dialog in Outbox */}
+      <Dialog open={isPersonaDialogOpen} onOpenChange={setIsPersonaDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Switch Demo Shopper Persona</DialogTitle>
+            <DialogDescription>
+              Select a persona to test orders, AI customer support conversations, and email simulations under different identities.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-2.5 py-2">
+            {availableCustomers.map((cust) => {
+              const isSelected = cust.id === customer?.id;
+              return (
+                <button
+                  key={cust.id}
+                  type="button"
+                  disabled={isSwitchingPersona}
+                  onClick={() => switchCustomer(cust.id)}
+                  className={`w-full flex items-center gap-3.5 p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    isSelected
+                      ? 'border-primary bg-primary/10 shadow-xs'
+                      : 'border-border hover:bg-muted/80 bg-card'
+                  }`}
+                >
+                  <Avatar className="h-10 w-10 border border-border shrink-0">
+                    <AvatarImage src={cust.avatarUrl} />
+                    <AvatarFallback className="font-bold text-xs">{cust.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-sm text-foreground truncate">{cust.name}</span>
+                      {isSelected && (
+                        <Badge variant="default" className="text-[10px] h-4 px-1.5 font-bold">
+                          Active
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{cust.email}</p>
+                    <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5">{cust.defaultAddress}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="pt-3 border-t border-border flex items-center justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsPersonaDialogOpen(false)}
+            >
+              Close
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
