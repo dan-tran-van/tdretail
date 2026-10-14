@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Suspense } from 'react';
-import { Navbar } from '@/components/Navbar';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { ShellLayout } from '@/components/ShellLayout';
 
 export const metadata: Metadata = {
   title: 'TD Retail | Shared Customer Support Platform & Gemini Agent',
@@ -18,31 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased selection:bg-primary/20">
-        <TooltipProvider>
-          <Suspense fallback={<div className="h-16 w-full border-b border-border bg-background" />}>
-            <Navbar />
-          </Suspense>
-          <main className="flex-1 flex flex-col">{children}</main>
-          <footer className="border-t border-border/60 py-6 text-center text-xs text-muted-foreground bg-card/40">
-            <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-foreground">TD Retail Platform</span>
-                <span>•</span>
-                <span>Multi-Merchant Customer Resolution Engine</span>
-              </div>
-              <div className="flex items-center gap-4 text-[11px]">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary animate-pulse"></span>
-                  Grounded Gemini 2.5 Flash
-                </span>
-                <span>•</span>
-                <span>SendGrid Inbound Parse</span>
-                <span>•</span>
-                <span>Firestore Multi-Tenant</span>
-              </div>
-            </div>
-          </footer>
-        </TooltipProvider>
+        <ShellLayout>{children}</ShellLayout>
       </body>
     </html>
   );

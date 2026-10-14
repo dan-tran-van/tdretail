@@ -57,8 +57,30 @@ export function ModernAppShell({
   const pathname = usePathname();
   const router = useRouter();
 
-  // Sidebar expanded state (persisted in localStorage if available)
+  // Sidebar expanded state (persisted in localStorage)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Load persisted state on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('tdretail_sidebar_open');
+      if (saved !== null) {
+        setIsSidebarOpen(saved === 'true');
+      }
+    } catch (e) {
+      // localStorage not accessible
+    }
+  }, []);
+
+  const toggleSidebar = (open: boolean) => {
+    setIsSidebarOpen(open);
+    try {
+      localStorage.setItem('tdretail_sidebar_open', String(open));
+    } catch (e) {
+      // ignore
+    }
+  };
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -172,7 +194,7 @@ export function ModernAppShell({
   };
 
   return (
-    <div className="flex-1 flex overflow-hidden relative h-[calc(100vh-3.5rem)]">
+    <div className="flex-1 flex overflow-hidden relative h-screen w-screen">
       {/* Modern Collapsible Sidebar */}
       <aside
         className={`h-full border-r border-border bg-card/60 backdrop-blur transition-all duration-300 ease-in-out flex flex-col z-20 shrink-0 ${
@@ -193,7 +215,7 @@ export function ModernAppShell({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setIsSidebarOpen(false)}
+                onClick={() => toggleSidebar(false)}
                 title="Collapse sidebar"
                 className="h-9 w-9 text-muted-foreground hover:text-foreground shrink-0"
               >
@@ -205,7 +227,7 @@ export function ModernAppShell({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setIsSidebarOpen(true)}
+                onClick={() => toggleSidebar(true)}
                 title="Expand sidebar"
                 className="h-9 w-9 text-muted-foreground hover:text-foreground"
               >
@@ -225,6 +247,20 @@ export function ModernAppShell({
 
         {/* Navigation Quick Links */}
         <div className="p-2 border-b border-border/60 flex flex-col gap-1 shrink-0">
+          <NextLink href="/">
+            <Button
+              variant={pathname === '/' ? 'secondary' : 'ghost'}
+              size="sm"
+              className={`w-full text-xs h-8 ${
+                isSidebarOpen ? 'justify-start gap-2.5 px-3' : 'justify-center px-0'
+              }`}
+              title="Home Platform Landing"
+            >
+              <Home className="h-4 w-4 text-muted-foreground" />
+              {isSidebarOpen && <span>Home & Demos</span>}
+            </Button>
+          </NextLink>
+
           <NextLink href="/inbox">
             <Button
               variant={pathname === '/inbox' ? 'secondary' : 'ghost'}
@@ -249,7 +285,7 @@ export function ModernAppShell({
               title="Outbox Inspector"
             >
               <Mail className="h-4 w-4 text-muted-foreground" />
-              {isSidebarOpen && <span>Email Outbox Inspector</span>}
+              {isSidebarOpen && <span>Email Outbox</span>}
             </Button>
           </NextLink>
         </div>

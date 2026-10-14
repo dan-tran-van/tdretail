@@ -73,9 +73,11 @@ function ConversationThreadInner() {
   const [demoNotice, setDemoNotice] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevMessagesCountRef = useRef<number>(0);
+  const isInitialLoadRef = useRef<boolean>(true);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
   const loadThreadData = async (silent = false) => {
@@ -89,7 +91,18 @@ function ConversationThreadInner() {
         setConversation(data.conversation);
         setMerchant(data.merchant);
         setLinkedOrder(data.linkedOrder);
-        setMessages(data.messages || []);
+
+        const newMessages: Message[] = data.messages || [];
+        setMessages((prev) => {
+          // Compare message count or IDs to avoid re-triggering state when identical
+          if (
+            prev.length === newMessages.length &&
+            prev[prev.length - 1]?.id === newMessages[newMessages.length - 1]?.id
+          ) {
+            return prev;
+          }
+          return newMessages;
+        });
       }
 
       const sessRes = await fetch('/api/session');
@@ -113,7 +126,17 @@ function ConversationThreadInner() {
   }, [conversationId]);
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length === 0) return;
+
+    // Only scroll on initial load or when new messages actually arrive
+    if (isInitialLoadRef.current) {
+      scrollToBottom('auto');
+      isInitialLoadRef.current = false;
+      prevMessagesCountRef.current = messages.length;
+    } else if (messages.length > prevMessagesCountRef.current) {
+      scrollToBottom('smooth');
+      prevMessagesCountRef.current = messages.length;
+    }
   }, [messages]);
 
   const toggleToolCall = (msgId: string) => {
