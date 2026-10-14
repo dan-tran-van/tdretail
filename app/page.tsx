@@ -3,66 +3,44 @@
 import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import {
-  Inbox,
+  Sparkles,
+  MessageSquare,
+  Mail,
   Disc,
   ShoppingBag,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
-  Mail,
   CheckCircle2,
-  Lock,
-  Zap,
-  Terminal,
-  RefreshCw,
   ExternalLink,
+  RefreshCw,
   Layers,
-  Cpu,
-  UserCheck,
+  Terminal,
+  Play,
+  User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Customer, Merchant } from '@/lib/types';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Customer } from '@/lib/types';
 
-export default function HomePage() {
+export default function LandingPage() {
   const [customer, setCustomer] = useState<Customer | null>(null);
-  const [merchants, setMerchants] = useState<Merchant[]>([]);
-  const [activeConversationsCount, setActiveConversationsCount] = useState<number>(0);
-  const [outboxCount, setOutboxCount] = useState<number>(0);
   const [isResetting, setIsResetting] = useState(false);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [sessRes, merchRes, convRes, outboxRes] = await Promise.all([
-          fetch('/api/session'),
-          fetch('/api/merchants'),
-          fetch('/api/conversations'),
-          fetch('/api/outbox'),
-        ]);
-
-        if (sessRes.ok) {
-          const s = await sessRes.json();
-          setCustomer(s.customer);
-        }
-        if (merchRes.ok) {
-          const m = await merchRes.json();
-          setMerchants(m.merchants || []);
-        }
-        if (convRes.ok) {
-          const c = await convRes.json();
-          setActiveConversationsCount((c.conversations || []).length);
-        }
-        if (outboxRes.ok) {
-          const o = await outboxRes.json();
-          setOutboxCount((o.emails || []).length);
-        }
-      } catch (e) {
-        console.error('Failed to load home page data:', e);
+  const fetchSession = async () => {
+    try {
+      const res = await fetch('/api/session');
+      if (res.ok) {
+        const data = await res.json();
+        setCustomer(data.customer);
       }
+    } catch (e) {
+      console.warn('Failed to fetch session', e);
     }
-    loadData();
+  };
+
+  useEffect(() => {
+    fetchSession();
   }, []);
 
   const handleResetData = async () => {
@@ -81,46 +59,36 @@ export default function HomePage() {
     <div className="flex-1 flex flex-col space-y-16 pb-16">
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-12 md:pt-20 pb-12 border-b border-border/60 bg-gradient-to-b from-background via-muted/20 to-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
-          {/* Top Pill */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-muted/60 text-xs font-semibold text-foreground shadow-xs">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span>TD Retail Prototype • Google Gemini Agent & SendGrid</span>
+            <span>TD Retail • Gemini-Powered Multi-Merchant Resolution</span>
           </div>
 
-          {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-foreground max-w-4xl mx-auto leading-[1.1]">
-            One Consolidated Inbox.{' '}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-foreground leading-[1.1]">
+            One Modern Chatbot.{' '}
             <span className="text-primary underline decoration-primary/30 decoration-wavy underline-offset-8">
-              Every Merchant.
-            </span>{' '}
-            Grounded AI.
+              All Merchants.
+            </span>
           </h1>
 
-          {/* Subtitle */}
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            A customer-centric multi-merchant support resolution platform. Shoppers manage conversations with separate storefronts (Digital Music & Groceries) in a single destination, backed by server-grounded order tools and email reply routing.
+            A unified conversational customer support platform. Manage inquiries across distinct merchants with a modern Gemini chat interface, collapsible sidebar navigation, live order tool grounding, and email reply integration.
           </p>
 
-          {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <NextLink href="/inbox">
-              <Button size="lg" className="h-11 px-6 gap-2 bg-primary text-primary-foreground shadow-sm hover:bg-primary/90">
-                <Inbox className="h-4 w-4" />
-                <span>Open Consolidated Inbox</span>
+            <NextLink href="/chat/conv_music_01">
+              <Button size="lg" className="h-11 px-6 gap-2 bg-primary text-primary-foreground shadow-xs">
+                <Sparkles className="h-4 w-4" />
+                <span>Launch Interactive Demo Chat</span>
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </NextLink>
 
-            <NextLink href="/outbox">
+            <NextLink href="/inbox">
               <Button variant="outline" size="lg" className="h-11 px-5 gap-2 border-border">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>Outbox Inspector</span>
-                {outboxCount > 0 && (
-                  <Badge variant="secondary" className="ml-1 text-xs">
-                    {outboxCount}
-                  </Badge>
-                )}
+                <MessageSquare className="h-4 w-4" />
+                <span>All Conversations</span>
               </Button>
             </NextLink>
 
@@ -137,12 +105,113 @@ export default function HomePage() {
           </div>
 
           {/* Active Demo Persona Indicator */}
-          <div className="pt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse"></span>
+          <div className="pt-2 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
             <span>Active Demo Shopper:</span>
             <span className="font-semibold text-foreground">{customer?.name || 'Sarah Connor'}</span>
             <span className="font-mono text-[11px] text-muted-foreground">({customer?.email})</span>
           </div>
+        </div>
+      </section>
+
+      {/* Featured Interactive Demo Cards Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-6">
+        <div className="text-center space-y-2 max-w-2xl mx-auto">
+          <Badge variant="outline" className="text-xs uppercase tracking-wider text-primary">
+            Quick Demos
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Jump Straight into Modern Chat Demos
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Experience our Gemini-powered chatbot interfaces with real pre-seeded order grounding.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Demo 1: SoundWave Digital */}
+          <Card className="border-border bg-card shadow-xs hover:border-primary/40 transition-all flex flex-col justify-between">
+            <CardHeader className="p-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
+                    <Disc className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">SoundWave Digital Music</CardTitle>
+                    <CardDescription className="text-xs">
+                      Lossless Audio, DJ Licenses & Vinyl Merch
+                    </CardDescription>
+                  </div>
+                </div>
+                <Badge variant="secondary" className="text-[10px]">
+                  Order Grounded
+                </Badge>
+              </div>
+
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Test order lookups for Order #SW-10492. Gemini retrieves verified digital license keys and explains return policies directly in the modern chat drawer.
+              </p>
+            </CardHeader>
+
+            <CardContent className="p-6 pt-0 flex gap-2">
+              <NextLink href="/chat/conv_music_01" className="flex-1">
+                <Button size="sm" className="w-full text-xs gap-1.5 bg-primary text-primary-foreground">
+                  <Play className="h-3.5 w-3.5" />
+                  <span>Open Music Support Chat</span>
+                </Button>
+              </NextLink>
+
+              <NextLink href="/storefront/music" className="flex-1">
+                <Button size="sm" variant="outline" className="w-full text-xs gap-1.5 border-border">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span>Storefront Demo</span>
+                </Button>
+              </NextLink>
+            </CardContent>
+          </Card>
+
+          {/* Demo 2: FreshCart Groceries */}
+          <Card className="border-border bg-card shadow-xs hover:border-primary/40 transition-all flex flex-col justify-between">
+            <CardHeader className="p-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
+                    <ShoppingBag className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">FreshCart Direct</CardTitle>
+                    <CardDescription className="text-xs">
+                      Artisanal Organic Foods & Same-Day Groceries
+                    </CardDescription>
+                  </div>
+                </div>
+                <Badge variant="secondary" className="text-[10px]">
+                  Fulfillment Grounded
+                </Badge>
+              </div>
+
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Test courier and cold-chain queries for Order #FC-88219. Gemini checks delivery status, driver updates, and policy-grounded refunds.
+              </p>
+            </CardHeader>
+
+            <CardContent className="p-6 pt-0 flex gap-2">
+              <NextLink href="/chat/conv_grocery_01" className="flex-1">
+                <Button size="sm" className="w-full text-xs gap-1.5 bg-primary text-primary-foreground">
+                  <Play className="h-3.5 w-3.5" />
+                  <span>Open Grocery Support Chat</span>
+                </Button>
+              </NextLink>
+
+              <NextLink href="/storefront/groceries" className="flex-1">
+                <Button size="sm" variant="outline" className="w-full text-xs gap-1.5 border-border">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span>Storefront Demo</span>
+                </Button>
+              </NextLink>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
@@ -153,189 +222,48 @@ export default function HomePage() {
             Key Differentiators
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            How TD Retail Solves Customer Frustration
+            Platform Capabilities
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Built specifically to address the pain points of fragmented customer support across merchant storefronts.
+            How TD Retail solves fragmented multi-merchant customer service.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Pillar 1 */}
-          <Card className="border-border bg-card hover:border-primary/40 transition-colors">
+          <Card className="border-border bg-card">
             <CardHeader className="p-6 pb-4 space-y-2">
               <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
                 <Layers className="h-5 w-5 text-primary" />
               </div>
-              <CardTitle className="text-lg">Consolidated Inbox</CardTitle>
+              <CardTitle className="text-lg">Modern Collapsible Sidebar</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
-                Customers no longer need 5 logins for 5 different store support portals. Inquiries from SoundWave Digital and FreshCart Direct live in one unified inbox with real-time status.
+                Gemini-style collapsible sidebar allowing quick switching between conversations, starting new support inquiries, and inspecting email threads.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
-              <div className="text-[11px] font-mono p-2.5 rounded-lg bg-muted border border-border text-muted-foreground">
-                Route: <code className="text-foreground font-bold">/inbox</code> • Scoped per customer session
-              </div>
-            </CardContent>
           </Card>
 
-          {/* Pillar 2 */}
-          <Card className="border-border bg-card hover:border-primary/40 transition-colors">
+          <Card className="border-border bg-card">
             <CardHeader className="p-6 pb-4 space-y-2">
               <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
                 <ShieldCheck className="h-5 w-5 text-primary" />
               </div>
               <CardTitle className="text-lg">Grounded Gemini AI</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
-                Zero hallucination policy. The model relies on server-side functions (<code>lookupOrderStatus</code>) with strict tenant boundary checks. The server remains in charge of authorization.
+                Server-side function calling with strict tenant boundary enforcement prevents hallucinated order states and ensures cross-merchant security.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
-              <div className="text-[11px] font-mono p-2.5 rounded-lg bg-muted border border-border text-muted-foreground">
-                Tool: <code className="text-foreground font-bold">lookupOrderStatus</code> • Cross-merchant isolation
-              </div>
-            </CardContent>
           </Card>
 
-          {/* Pillar 3 */}
-          <Card className="border-border bg-card hover:border-primary/40 transition-colors">
+          <Card className="border-border bg-card">
             <CardHeader className="p-6 pb-4 space-y-2">
               <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
                 <Mail className="h-5 w-5 text-primary" />
               </div>
               <CardTitle className="text-lg">Email Reply Routing</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
-                Outgoing notifications contain encoded <code>Reply-To</code> addresses. When a customer hits "Reply" in their email app, SendGrid Inbound Parse routes the message directly into the thread.
+                SendGrid Inbound Parse integration matches email replies directly into conversation threads with one-click simulation in the Outbox Inspector.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
-              <div className="text-[11px] font-mono p-2.5 rounded-lg bg-muted border border-border text-muted-foreground">
-                Webhook: <code className="text-foreground font-bold">/api/webhooks/sendgrid</code> • Outbox inspector
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Participating Merchant Domain Showcase */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-4">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Participating Merchant Showcase
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Pre-seeded in Firestore with distinct policies, branding, and domain orders.
-            </p>
-          </div>
-
-          <NextLink href="/inbox">
-            <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-primary">
-              <span>View All Discussions</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
-          </NextLink>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Merchant A: Digital Music Store */}
-          <Card className="border-border bg-card hover:border-primary/40 shadow-xs flex flex-col justify-between">
-            <CardHeader className="p-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
-                    <Disc className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">SoundWave Digital</CardTitle>
-                    <Badge variant="secondary" className="text-[10px] mt-0.5">
-                      Merchant A • Digital Music
-                    </Badge>
-                  </div>
-                </div>
-
-                <span className="text-xs font-mono text-muted-foreground">ID: merchant_music</span>
-              </div>
-
-              <CardDescription className="text-xs text-foreground/80 leading-relaxed">
-                Distributes studio-quality 24-bit FLAC audio albums, artist master stems, and verified digital ownership keys. Instant digital delivery with permanent cloud vault storage.
-              </CardDescription>
-
-              <div className="p-3 rounded-lg bg-muted border border-border text-xs space-y-1">
-                <span className="font-semibold text-foreground text-[11px] block">Demo Orders Ready for Grounding:</span>
-                <ul className="space-y-1 text-muted-foreground text-[11px]">
-                  <li>• <code className="text-foreground font-mono">#ORD-MUS-8821</code>: Neon Echoes Vol 2 (Delivered / Download Key Ready)</li>
-                  <li>• <code className="text-foreground font-mono">#ORD-MUS-9042</code>: Tokyo Lo-Fi Beats (Processing / Stems Keygen)</li>
-                  <li>• <code className="text-foreground font-mono">#ORD-MUS-7710</code>: Live Stream Concert Pass (Cancelled & Refunded)</li>
-                </ul>
-              </div>
-            </CardHeader>
-
-            <CardContent className="p-6 pt-0 flex gap-2">
-              <NextLink href="/storefront/music" className="flex-1">
-                <Button size="sm" variant="outline" className="w-full text-xs gap-1.5 border-border">
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  <span>Open Music Storefront</span>
-                </Button>
-              </NextLink>
-
-              <NextLink href="/chat/conv_music_01" className="flex-1">
-                <Button size="sm" className="w-full text-xs gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>Launch SoundWave Chat</span>
-                </Button>
-              </NextLink>
-            </CardContent>
-          </Card>
-
-          {/* Merchant B: Groceries Store */}
-          <Card className="border-border bg-card hover:border-primary/40 shadow-xs flex flex-col justify-between">
-            <CardHeader className="p-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
-                    <ShoppingBag className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">FreshCart Direct</CardTitle>
-                    <Badge variant="secondary" className="text-[10px] mt-0.5">
-                      Merchant B • Organic Groceries
-                    </Badge>
-                  </div>
-                </div>
-
-                <span className="text-xs font-mono text-muted-foreground">ID: merchant_grocery</span>
-              </div>
-
-              <CardDescription className="text-xs text-foreground/80 leading-relaxed">
-                Farm-fresh organic produce and pasture-raised dairy delivered within 2 hours. Protected by a cold-chain guarantee with temperature-controlled insulated totes.
-              </CardDescription>
-
-              <div className="p-3 rounded-lg bg-muted border border-border text-xs space-y-1">
-                <span className="font-semibold text-foreground text-[11px] block">Demo Orders Ready for Grounding:</span>
-                <ul className="space-y-1 text-muted-foreground text-[11px]">
-                  <li>• <code className="text-foreground font-mono">#ORD-GROC-5512</code>: Avocados, Whole Milk, Cold Brew (Out for Delivery - Driver Marcus D.)</li>
-                  <li>• <code className="text-foreground font-mono">#ORD-GROC-6180</code>: Sockeye Salmon & Spinach (Delivered to Front Porch)</li>
-                  <li>• <code className="text-foreground font-mono">#ORD-GROC-4920</code>: Artisanal Cheeses (Cancelled / Item Out of Stock)</li>
-                </ul>
-              </div>
-            </CardHeader>
-
-            <CardContent className="p-6 pt-0 flex gap-2">
-              <NextLink href="/storefront/groceries" className="flex-1">
-                <Button size="sm" variant="outline" className="w-full text-xs gap-1.5 border-border">
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  <span>Open Grocery Storefront</span>
-                </Button>
-              </NextLink>
-
-              <NextLink href="/chat/conv_grocery_01" className="flex-1">
-                <Button size="sm" className="w-full text-xs gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>Launch FreshCart Chat</span>
-                </Button>
-              </NextLink>
-            </CardContent>
           </Card>
         </div>
       </section>
@@ -349,7 +277,7 @@ export default function HomePage() {
               <CardTitle className="text-base">Requirements Verification</CardTitle>
             </div>
             <CardDescription className="text-xs">
-              Every deliverable from the specification has been built with clean production-grade code.
+              Built with Next.js App Router, TypeScript, shadcn/ui, and Gemini AI.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0">
@@ -357,9 +285,9 @@ export default function HomePage() {
               <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
                 <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-semibold text-foreground">Consolidated Customer Inbox</span>
+                  <span className="font-semibold text-foreground">Consolidated Chatbot Inbox</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Unified <code>/inbox</code> supporting multi-merchant filter tabs and order selectors.
+                    Unified inbox and chat with expandable/collapsible sidebar.
                   </p>
                 </div>
               </div>
@@ -369,7 +297,7 @@ export default function HomePage() {
                 <div>
                   <span className="font-semibold text-foreground">Grounded Gemini Tools</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Server tool <code>lookupOrderStatus</code> validates tenant boundary and ownership before return.
+                    Server tool <code>lookupOrderStatus</code> validates tenant boundary before return.
                   </p>
                 </div>
               </div>
@@ -380,36 +308,6 @@ export default function HomePage() {
                   <span className="font-semibold text-foreground">Inbound & Outbound Email</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     SendGrid SDK + Inbound Parse webhook handler with Reply-To token routing.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-semibold text-foreground">Local Development Outbox</span>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Inspect outgoing emails at <code>/outbox</code> and simulate 1-click customer email replies.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-semibold text-foreground">Firestore Dual-Mode Store</span>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Firebase Admin SDK with clean fallback for zero-barrier local evaluation.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-semibold text-foreground">Human Escalation Workflow</span>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    AI and customer escalation triggers, audit events, and specialist resolution controls.
                   </p>
                 </div>
               </div>

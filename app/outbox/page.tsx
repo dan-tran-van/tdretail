@@ -4,22 +4,18 @@ import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import {
   Mail,
-  Send,
-  CornerUpLeft,
-  ExternalLink,
-  RefreshCw,
-  CheckCircle2,
-  Inbox,
-  ShieldCheck,
   Disc,
   ShoppingBag,
-  Clock,
+  RefreshCw,
+  CornerUpLeft,
+  ExternalLink,
+  ShieldCheck,
+  Send,
   Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -27,18 +23,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ModernAppShell } from '@/components/ModernAppShell';
 import { OutboxEmail } from '@/lib/types';
 
 export default function OutboxPage() {
   const [emails, setEmails] = useState<OutboxEmail[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedEmail, setSelectedEmail] = useState<OutboxEmail | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Simulation modal
+  // Email simulation modal state
   const [isSimulating, setIsSimulating] = useState(false);
-  const [replyText, setReplyText] = useState('');
-  const [simStatus, setSimStatus] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('Thank you, this solved my issue!');
   const [submittingReply, setSubmittingReply] = useState(false);
+  const [simStatus, setSimStatus] = useState<string | null>(null);
 
   const loadEmails = async () => {
     try {
@@ -52,7 +49,7 @@ export default function OutboxPage() {
         }
       }
     } catch (e) {
-      console.error('Failed to load outbox:', e);
+      console.error('Error fetching outbox:', e);
     } finally {
       setLoading(false);
     }
@@ -62,15 +59,14 @@ export default function OutboxPage() {
     loadEmails();
   }, []);
 
-  const handleSimulateReply = async (email: OutboxEmail) => {
+  const handleSimulateReply = (email: OutboxEmail) => {
     setSelectedEmail(email);
-    setReplyText('Thank you for the quick verification! The license key and files worked perfectly.');
-    setSimStatus(null);
     setIsSimulating(true);
+    setSimStatus(null);
   };
 
   const submitSimulatedReply = async () => {
-    if (!selectedEmail || !replyText.trim() || submittingReply) return;
+    if (!selectedEmail || !replyText.trim()) return;
     setSubmittingReply(true);
     setSimStatus(null);
 
@@ -79,324 +75,280 @@ export default function OutboxPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          conversationId: selectedEmail.conversationId,
-          replyText: replyText.trim(),
-          customerEmail: selectedEmail.to,
+          fromEmail: selectedEmail.to,
+          toEmail: selectedEmail.replyTo,
+          subject: `Re: ${selectedEmail.subject}`,
+          bodyText: replyText,
         }),
       });
 
       const data = await res.json();
       if (res.ok) {
-        setSimStatus('Reply ingested into thread via SendGrid Inbound Parse! The Gemini agent has formulated a new grounded answer.');
-        await loadEmails();
+        setSimStatus('Reply ingested into conversation thread and Gemini AI triggered.');
+        setTimeout(() => {
+          setIsSimulating(false);
+        }, 1500);
       } else {
-        setSimStatus(`Error: ${data.error}`);
+        setSimStatus(data.error || 'Failed to simulate reply');
       }
     } catch (err: any) {
-      setSimStatus(`Failed: ${err.message}`);
+      setSimStatus(err.message || 'Network error');
     } finally {
       setSubmittingReply(false);
     }
   };
 
   return (
-    <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/80 pb-6">
-        <div>
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              Local Development Email Outbox
-            </h1>
-            <Badge
-              variant="secondary"
-              className="text-xs px-2"
-            >
-              SendGrid Inbound & Outbound Pipeline
-            </Badge>
+    <ModernAppShell onRefresh={loadEmails}>
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        {/* Top Header */}
+        <div className="p-4 sm:p-6 border-b border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0 bg-card/40">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h1 className="text-xl font-bold tracking-tight text-foreground">
+                Email Outbox Inspector
+              </h1>
+              <Badge variant="secondary" className="text-xs">
+                SendGrid Inbound Parse
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Inspect outgoing notifications and test replying directly to simulate customer email client replies.
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            Inspect all outgoing emails generated by the TD Retail platform. When customers click
-            "Reply" in their email app, replies route back into the specific conversation thread
-            without requiring them to log into a separate portal.
-          </p>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadEmails}
+            disabled={loading}
+            className="gap-2 text-xs self-start sm:self-auto"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </Button>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={loadEmails}
-          disabled={loading}
-          className="gap-2 self-start md:self-auto text-xs"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>Refresh Outbox</span>
-        </Button>
-      </div>
-
-      {/* Main Outbox View Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Email List Column */}
-        <div className="lg:col-span-5 space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Sent Notifications ({emails.length})
-            </span>
-            <span className="text-[11px] text-muted-foreground">Latest first</span>
-          </div>
-
-          {loading ? (
-            <div className="p-8 text-center text-xs text-muted-foreground">
-              <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-primary" />
-              Loading sent emails...
+        {/* Master-Detail Outbox Inspector Split */}
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden">
+          {/* Email List Left Column */}
+          <div className="md:col-span-5 lg:col-span-4 border-r border-border h-full overflow-y-auto p-3 space-y-2">
+            <div className="flex items-center justify-between px-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <span>Outgoing Emails ({emails.length})</span>
             </div>
-          ) : emails.length === 0 ? (
-            <Card className="p-6 text-center text-xs text-muted-foreground">
-              <Mail className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>No outgoing support emails recorded yet.</p>
-              <p className="mt-1">
-                Start a conversation or send a message in the inbox to generate email notifications.
-              </p>
-            </Card>
-          ) : (
-            emails.map((email) => {
-              const isSelected = selectedEmail?.id === email.id;
-              const isMusic = email.merchantId === 'merchant_music';
 
-              return (
-                <Card
-                  key={email.id}
-                  onClick={() => setSelectedEmail(email)}
-                  className={`cursor-pointer transition-all border text-left ${
-                    isSelected
-                      ? 'border-primary ring-1 ring-primary/40 bg-card shadow-sm'
-                      : 'hover:bg-muted/40 border-border/80 bg-card/60'
-                  }`}
-                >
-                  <CardContent className="p-3.5 space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        {isMusic ? (
-                          <Disc className="h-3.5 w-3.5 text-primary" />
-                        ) : (
-                          <ShoppingBag className="h-3.5 w-3.5 text-primary" />
-                        )}
-                        <span className="text-xs font-semibold text-foreground truncate">
-                          {email.merchantName}
-                        </span>
+            {loading ? (
+              <div className="p-8 text-center text-xs text-muted-foreground">
+                <RefreshCw className="h-4 w-4 animate-spin mx-auto mb-2 text-primary" />
+                Loading outbox...
+              </div>
+            ) : emails.length === 0 ? (
+              <Card className="p-6 text-center text-xs text-muted-foreground border-dashed">
+                <Mail className="h-7 w-7 mx-auto mb-2 opacity-40" />
+                <p>No outgoing support emails recorded yet.</p>
+              </Card>
+            ) : (
+              emails.map((email) => {
+                const isSelected = selectedEmail?.id === email.id;
+                const isMusic = email.merchantId === 'merchant_music';
+
+                return (
+                  <Card
+                    key={email.id}
+                    onClick={() => setSelectedEmail(email)}
+                    className={`cursor-pointer transition-all border text-left ${
+                      isSelected
+                        ? 'border-primary ring-1 ring-primary/40 bg-card shadow-xs'
+                        : 'hover:bg-muted/40 border-border/80 bg-card/60'
+                    }`}
+                  >
+                    <CardContent className="p-3 space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {isMusic ? (
+                            <Disc className="h-3.5 w-3.5 text-primary shrink-0" />
+                          ) : (
+                            <ShoppingBag className="h-3.5 w-3.5 text-primary shrink-0" />
+                          )}
+                          <span className="text-xs font-semibold text-foreground truncate">
+                            {email.merchantName}
+                          </span>
+                        </div>
+
+                        <Badge
+                          variant={email.status === 'sent' ? 'default' : 'secondary'}
+                          className="text-[9px] h-4 px-1.5 shrink-0"
+                        >
+                          {email.status === 'sent' ? 'Sent' : 'Queued'}
+                        </Badge>
                       </div>
 
-                      <Badge
-                        variant={email.status === 'sent' ? 'default' : 'secondary'}
-                        className="text-[9px] h-4 px-1.5"
-                      >
-                        {email.status === 'sent' ? 'SendGrid Live' : 'Simulated Outbox'}
-                      </Badge>
+                      <p className="text-xs font-medium text-foreground truncate">
+                        {email.subject}
+                      </p>
+
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                        <span className="truncate max-w-[140px]">To: {email.to}</span>
+                        <span>{new Date(email.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+
+          {/* Email Preview & Simulation Right Column */}
+          <div className="md:col-span-7 lg:col-span-8 h-full overflow-y-auto p-4 sm:p-6 bg-muted/20">
+            {selectedEmail ? (
+              <div className="space-y-4 max-w-3xl mx-auto">
+                {/* Email Header Card */}
+                <Card className="border-border bg-card shadow-xs">
+                  <CardHeader className="p-4 pb-3 border-b border-border space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <h2 className="text-base font-bold text-foreground truncate">
+                        {selectedEmail.subject}
+                      </h2>
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSimulateReply(selectedEmail)}
+                          className="h-7 text-xs gap-1.5"
+                        >
+                          <CornerUpLeft className="h-3.5 w-3.5" />
+                          <span>Simulate Reply</span>
+                        </Button>
+
+                        <NextLink href={`/chat/${selectedEmail.conversationId}`}>
+                          <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
+                            <span>View Thread</span>
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
+                        </NextLink>
+                      </div>
                     </div>
 
-                    <h4 className="text-xs font-medium text-foreground line-clamp-1">
-                      {email.subject}
-                    </h4>
+                    <div className="space-y-1 font-mono text-xs bg-muted/50 p-2.5 rounded-lg border border-border">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground w-16 shrink-0">From:</span>
+                        <span className="text-foreground">{selectedEmail.from}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground w-16 shrink-0">To:</span>
+                        <span className="text-foreground">{selectedEmail.to}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-primary font-semibold">
+                        <span className="text-muted-foreground w-16 shrink-0 font-normal">Reply-To:</span>
+                        <span>{selectedEmail.replyTo}</span>
+                      </div>
+                    </div>
+                  </CardHeader>
 
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/40">
-                      <span className="truncate max-w-[150px]">To: {email.to}</span>
-                      <span>
-                        {new Date(email.sentAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
+                  <CardContent className="p-4 space-y-4">
+                    {/* Body */}
+                    <div className="rounded-xl border border-border p-4 bg-background min-h-[160px]">
+                      {selectedEmail.bodyHtml ? (
+                        <div
+                          dangerouslySetInnerHTML={{ __html: selectedEmail.bodyHtml }}
+                          className="prose prose-sm dark:prose-invert max-w-none text-xs"
+                        />
+                      ) : (
+                        <div className="whitespace-pre-wrap font-sans text-xs text-foreground leading-relaxed">
+                          {selectedEmail.bodyText}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Inbound Routing Banner */}
+                    <div className="p-3 rounded-xl border border-border bg-muted/40 text-xs space-y-1.5">
+                      <div className="flex items-center gap-1.5 font-semibold text-foreground">
+                        <ShieldCheck className="h-4 w-4 text-primary" />
+                        <span>SendGrid Inbound Parse Mechanism</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                        When the customer replies via their email client to{' '}
+                        <code className="bg-background px-1 py-0.5 rounded border border-border font-mono text-[10px] text-foreground">
+                          {selectedEmail.replyTo}
+                        </code>
+                        , SendGrid webhooks route the incoming message into this conversation thread and trigger Gemini.
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
-              );
-            })
-          )}
-        </div>
-
-        {/* Selected Email Detailed Preview Column */}
-        <div className="lg:col-span-7">
-          {selectedEmail ? (
-            <Card className="border-border/80 shadow-md">
-              <CardHeader className="border-b border-border/70 p-4 sm:p-5 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Email Message Details
-                    </span>
-                    <Badge variant="outline" className="font-mono text-[10px]">
-                      Thread #{selectedEmail.conversationId}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleSimulateReply(selectedEmail)}
-                      className="h-7 text-xs gap-1.5"
-                    >
-                      <CornerUpLeft className="h-3.5 w-3.5" />
-                      <span>Simulate Customer Reply</span>
-                    </Button>
-
-                    <NextLink href={`/chat/${selectedEmail.conversationId}`}>
-                      <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
-                        <span>Open Thread</span>
-                        <ExternalLink className="h-3 w-3" />
-                      </Button>
-                    </NextLink>
-                  </div>
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center p-8 text-center text-muted-foreground">
+                <div className="space-y-2">
+                  <Mail className="h-10 w-10 mx-auto opacity-30" />
+                  <p className="text-sm font-medium">Select an email to view full content</p>
                 </div>
-
-                <div className="space-y-1.5 font-mono text-xs bg-muted/40 p-3 rounded-lg border border-border/60">
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground w-16 shrink-0">From:</span>
-                    <span className="text-foreground">{selectedEmail.from}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground w-16 shrink-0">To:</span>
-                    <span className="text-foreground">{selectedEmail.to}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-primary font-semibold">
-                    <span className="text-muted-foreground w-16 shrink-0 font-normal">Reply-To:</span>
-                    <span>{selectedEmail.replyTo}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground w-16 shrink-0">Subject:</span>
-                    <span className="text-foreground font-sans font-medium">
-                      {selectedEmail.subject}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                    <span className="w-16 shrink-0">Date:</span>
-                    <span>{new Date(selectedEmail.sentAt).toLocaleString()}</span>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="p-5 space-y-4">
-                <div className="rounded-xl border border-border/70 p-4 bg-background min-h-[220px]">
-                  {selectedEmail.bodyHtml ? (
-                    <div
-                      dangerouslySetInnerHTML={{ __html: selectedEmail.bodyHtml }}
-                      className="prose prose-sm dark:prose-invert max-w-none text-xs sm:text-sm"
-                    />
-                  ) : (
-                    <div className="whitespace-pre-wrap font-sans text-xs sm:text-sm text-foreground">
-                      {selectedEmail.bodyText}
-                    </div>
-                  )}
-                </div>
-
-                {/* Routing Explanation Banner */}
-                <div className="p-3.5 rounded-xl border border-border bg-muted/50 text-xs space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                    <ShieldCheck className="h-4 w-4 text-primary" />
-                    <span>How SendGrid Inbound Reply Routing Works in TD Retail</span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    The platform sets the email header{' '}
-                    <code className="bg-background px-1 py-0.5 rounded border border-border font-mono text-[10px] text-foreground">
-                      Reply-To: {selectedEmail.replyTo}
-                    </code>
-                    . When the customer replies directly via their email client (Gmail, Outlook, Apple Mail),
-                    SendGrid's Inbound Parse webhook parses the thread reference, verifies sender authorization,
-                    appends the message into the customer's conversation, and triggers the Gemini agent to formulate a reply.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="p-12 text-center text-muted-foreground">
-              <Mail className="h-10 w-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm font-medium">Select an email to view full content and reply routing details.</p>
-            </Card>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Simulate Email Reply Modal */}
+      {/* Reply Simulation Modal */}
       <Dialog open={isSimulating} onOpenChange={setIsSimulating}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CornerUpLeft className="h-5 w-5 text-primary" />
               <span>Simulate Customer Email Reply</span>
             </DialogTitle>
             <DialogDescription>
-              Test SendGrid Inbound Parse email reply routing. The payload will be sent to{' '}
-              <code className="text-foreground font-mono text-xs">/api/webhooks/sendgrid</code> with the thread ID token.
+              Test SendGrid Inbound Parse webhook reply ingestion.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 pt-2">
+          <div className="space-y-3 pt-2">
             {simStatus && (
-              <div className="p-3 rounded-lg text-xs bg-muted text-foreground border border-border">
+              <div className="p-2.5 rounded-lg text-xs bg-muted text-foreground border border-border">
                 {simStatus}
               </div>
             )}
 
-            <div className="space-y-1 font-mono text-xs bg-muted/50 p-2.5 rounded border border-border">
+            <div className="space-y-1 font-mono text-xs bg-muted/50 p-2 rounded border border-border">
               <div>
                 <span className="text-muted-foreground">To:</span> {selectedEmail?.replyTo}
               </div>
               <div>
                 <span className="text-muted-foreground">From:</span> {selectedEmail?.to}
               </div>
-              <div>
-                <span className="text-muted-foreground">Subject:</span> Re: {selectedEmail?.subject}
-              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">
-                Email Reply Body
-              </label>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground">Customer Reply Content</label>
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                rows={4}
-                className="w-full rounded-lg border border-border bg-background p-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+                rows={3}
+                className="w-full rounded-lg border border-border bg-background p-2.5 text-xs resize-none"
               />
             </div>
 
-            <div className="flex items-center justify-between pt-2">
-              {selectedEmail && (
-                <NextLink
-                  href={`/chat/${selectedEmail.conversationId}`}
-                  className="text-xs text-primary hover:underline flex items-center gap-1"
-                >
-                  <span>Go to thread</span>
-                  <ExternalLink className="h-3 w-3" />
-                </NextLink>
-              )}
-
-              <div className="flex items-center gap-2 ml-auto">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsSimulating(false)}
-                >
-                  Close
-                </Button>
-                <Button
-                  size="sm"
-                  disabled={submittingReply || !replyText.trim()}
-                  onClick={submitSimulatedReply}
-                  className="gap-2"
-                >
-                  {submittingReply ? (
-                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Send className="h-3.5 w-3.5" />
-                  )}
-                  <span>Send Inbound Webhook</span>
-                </Button>
-              </div>
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <Button variant="outline" size="sm" onClick={() => setIsSimulating(false)}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                disabled={submittingReply || !replyText.trim()}
+                onClick={submitSimulatedReply}
+                className="gap-1.5"
+              >
+                {submittingReply ? (
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Send className="h-3.5 w-3.5" />
+                )}
+                <span>Send Webhook</span>
+              </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </ModernAppShell>
   );
 }

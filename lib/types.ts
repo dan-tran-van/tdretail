@@ -95,6 +95,7 @@ export interface Conversation {
   customerEmail: string;
   customerName: string;
   merchantId: string;
+  merchantName?: string;
   orderId?: string | null;
   subject: string;
   status: ConversationStatus;
@@ -125,6 +126,7 @@ export interface MessageMetadata {
   inboundEmailId?: string;
   inboundEmailFrom?: string;
   modelName?: string;
+  agentName?: string;
 }
 
 export interface Message {
@@ -135,6 +137,7 @@ export interface Message {
   content: string;
   metadata?: MessageMetadata;
   timestamp: string;
+  createdAt?: string;
 }
 
 export interface OutboxEmail {
