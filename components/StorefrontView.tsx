@@ -202,26 +202,16 @@ export function StorefrontView({ merchantId }: StorefrontProps) {
   return (
     <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Merchant Header Hero */}
-      <div
-        className={`rounded-3xl p-6 sm:p-8 border shadow-sm relative overflow-hidden ${
-          isMusic
-            ? 'bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 border-indigo-500/30 text-white'
-            : 'bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 border-emerald-500/30 text-white'
-        }`}
-      >
+      <div className="rounded-3xl p-6 sm:p-8 border border-border bg-card text-card-foreground shadow-sm relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2">
-              <div
-                className={`p-2 rounded-xl backdrop-blur-md ${
-                  isMusic ? 'bg-indigo-500/20 text-indigo-300' : 'bg-emerald-500/20 text-emerald-300'
-                }`}
-              >
+              <div className="p-2 rounded-xl bg-primary/10 text-primary">
                 {isMusic ? <Disc className="h-6 w-6" /> : <ShoppingBag className="h-6 w-6" />}
               </div>
               <Badge
                 variant="outline"
-                className="text-white/80 border-white/20 uppercase tracking-wider text-[10px]"
+                className="uppercase tracking-wider text-[10px]"
               >
                 Simulated Merchant Storefront
               </Badge>
@@ -230,11 +220,11 @@ export function StorefrontView({ merchantId }: StorefrontProps) {
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
               {merchant?.name}
             </h1>
-            <p className="text-sm text-white/80 leading-relaxed">{merchant?.description}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{merchant?.description}</p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-white/70">
+            <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                <ShieldCheck className="h-4 w-4 text-primary" />
                 <span>Verified TD Retail Partner</span>
               </span>
               <span>•</span>
@@ -247,11 +237,7 @@ export function StorefrontView({ merchantId }: StorefrontProps) {
             <Button
               onClick={handleSimulateNewOrder}
               disabled={isSimulatingPurchase}
-              className={`gap-2 text-xs font-semibold shadow-md ${
-                isMusic
-                  ? 'bg-indigo-500 hover:bg-indigo-600 text-white'
-                  : 'bg-emerald-500 hover:bg-emerald-600 text-white'
-              }`}
+              className="gap-2 text-xs font-semibold shadow-xs"
             >
               <Plus className="h-4 w-4" />
               <span>{isSimulatingPurchase ? 'Processing...' : 'Simulate New Purchase'}</span>
@@ -319,16 +305,8 @@ export function StorefrontView({ merchantId }: StorefrontProps) {
                         #{order.orderId}
                       </span>
                       <Badge
-                        variant="outline"
-                        className={`text-[10px] ${
-                          isDelivered
-                            ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300'
-                            : isOutForDelivery
-                            ? 'text-blue-700 bg-blue-50 dark:bg-blue-950/40 border-blue-300'
-                            : isRefunded
-                            ? 'text-purple-700 bg-purple-50 dark:bg-purple-950/40 border-purple-300'
-                            : 'text-amber-700 bg-amber-50 dark:bg-amber-950/40 border-amber-300'
-                        }`}
+                        variant={isDelivered ? 'default' : isRefunded ? 'destructive' : 'secondary'}
+                        className="text-[10px]"
                       >
                         {order.orderStatusDisplay}
                       </Badge>
@@ -358,7 +336,7 @@ export function StorefrontView({ merchantId }: StorefrontProps) {
                       </div>
                       {order.estimatedDelivery && (
                         <div className="flex justify-between">
-                          <span>Fulfillment:</span>
+                           <span>Fulfillment:</span>
                           <span className="truncate max-w-[160px]">{order.estimatedDelivery}</span>
                         </div>
                       )}
@@ -367,11 +345,7 @@ export function StorefrontView({ merchantId }: StorefrontProps) {
                     <Button
                       onClick={() => openSupportForOrder(order)}
                       size="sm"
-                      className={`w-full text-xs gap-1.5 shadow-xs ${
-                        isMusic
-                          ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                          : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                      }`}
+                      className="w-full text-xs gap-1.5 shadow-xs"
                     >
                       <Sparkles className="h-3.5 w-3.5" />
                       <span>Get Support on this Order</span>

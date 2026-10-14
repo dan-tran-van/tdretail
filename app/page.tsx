@@ -83,15 +83,15 @@ export default function HomePage() {
       <section className="relative overflow-hidden pt-12 md:pt-20 pb-12 border-b border-border/60 bg-gradient-to-b from-background via-muted/20 to-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
           {/* Top Pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-950/40 text-xs font-semibold text-indigo-600 dark:text-indigo-400 shadow-xs">
-            <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
-            <span>TD Retail Hackathon Prototype • Google Gemini Agent & SendGrid</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-muted/60 text-xs font-semibold text-foreground shadow-xs">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <span>TD Retail Prototype • Google Gemini Agent & SendGrid</span>
           </div>
 
           {/* Headline */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-foreground max-w-4xl mx-auto leading-[1.1]">
             One Consolidated Inbox.{' '}
-            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-500 bg-clip-text text-transparent">
+            <span className="text-primary underline decoration-primary/30 decoration-wavy underline-offset-8">
               Every Merchant.
             </span>{' '}
             Grounded AI.
@@ -105,7 +105,7 @@ export default function HomePage() {
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <NextLink href="/inbox">
-              <Button size="lg" className="h-11 px-6 gap-2 bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">
+              <Button size="lg" className="h-11 px-6 gap-2 bg-primary text-primary-foreground shadow-sm hover:bg-primary/90">
                 <Inbox className="h-4 w-4" />
                 <span>Open Consolidated Inbox</span>
                 <ArrowRight className="h-4 w-4 ml-1" />
@@ -113,8 +113,8 @@ export default function HomePage() {
             </NextLink>
 
             <NextLink href="/outbox">
-              <Button variant="outline" size="lg" className="h-11 px-5 gap-2 border-border/80">
-                <Mail className="h-4 w-4 text-blue-500" />
+              <Button variant="outline" size="lg" className="h-11 px-5 gap-2 border-border">
+                <Mail className="h-4 w-4 text-muted-foreground" />
                 <span>Outbox Inspector</span>
                 {outboxCount > 0 && (
                   <Badge variant="secondary" className="ml-1 text-xs">
@@ -138,7 +138,7 @@ export default function HomePage() {
 
           {/* Active Demo Persona Indicator */}
           <div className="pt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="h-2 w-2 rounded-full bg-primary animate-pulse"></span>
             <span>Active Demo Shopper:</span>
             <span className="font-semibold text-foreground">{customer?.name || 'Sarah Connor'}</span>
             <span className="font-mono text-[11px] text-muted-foreground">({customer?.email})</span>
@@ -162,10 +162,10 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Pillar 1 */}
-          <Card className="border-border/80 bg-card/60 hover:shadow-md transition-all">
+          <Card className="border-border bg-card hover:border-primary/40 transition-colors">
             <CardHeader className="p-6 pb-4 space-y-2">
-              <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                <Layers className="h-5 w-5" />
+              <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
+                <Layers className="h-5 w-5 text-primary" />
               </div>
               <CardTitle className="text-lg">Consolidated Inbox</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
@@ -173,17 +173,17 @@ export default function HomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-0">
-              <div className="text-[11px] font-mono p-2.5 rounded-lg bg-muted/50 border border-border/60 text-muted-foreground">
+              <div className="text-[11px] font-mono p-2.5 rounded-lg bg-muted border border-border text-muted-foreground">
                 Route: <code className="text-foreground font-bold">/inbox</code> • Scoped per customer session
               </div>
             </CardContent>
           </Card>
 
           {/* Pillar 2 */}
-          <Card className="border-border/80 bg-card/60 hover:shadow-md transition-all">
+          <Card className="border-border bg-card hover:border-primary/40 transition-colors">
             <CardHeader className="p-6 pb-4 space-y-2">
-              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                <ShieldCheck className="h-5 w-5" />
+              <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
+                <ShieldCheck className="h-5 w-5 text-primary" />
               </div>
               <CardTitle className="text-lg">Grounded Gemini AI</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
@@ -191,17 +191,17 @@ export default function HomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-0">
-              <div className="text-[11px] font-mono p-2.5 rounded-lg bg-muted/50 border border-border/60 text-muted-foreground">
+              <div className="text-[11px] font-mono p-2.5 rounded-lg bg-muted border border-border text-muted-foreground">
                 Tool: <code className="text-foreground font-bold">lookupOrderStatus</code> • Cross-merchant isolation
               </div>
             </CardContent>
           </Card>
 
           {/* Pillar 3 */}
-          <Card className="border-border/80 bg-card/60 hover:shadow-md transition-all">
+          <Card className="border-border bg-card hover:border-primary/40 transition-colors">
             <CardHeader className="p-6 pb-4 space-y-2">
-              <div className="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                <Mail className="h-5 w-5" />
+              <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
+                <Mail className="h-5 w-5 text-primary" />
               </div>
               <CardTitle className="text-lg">Email Reply Routing</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
@@ -209,7 +209,7 @@ export default function HomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-0">
-              <div className="text-[11px] font-mono p-2.5 rounded-lg bg-muted/50 border border-border/60 text-muted-foreground">
+              <div className="text-[11px] font-mono p-2.5 rounded-lg bg-muted border border-border text-muted-foreground">
                 Webhook: <code className="text-foreground font-bold">/api/webhooks/sendgrid</code> • Outbox inspector
               </div>
             </CardContent>
@@ -239,16 +239,16 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Merchant A: Digital Music Store */}
-          <Card className="border-indigo-500/30 bg-gradient-to-br from-card via-card to-indigo-500/5 shadow-sm overflow-hidden flex flex-col justify-between">
+          <Card className="border-border bg-card hover:border-primary/40 shadow-xs flex flex-col justify-between">
             <CardHeader className="p-6 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/30">
+                  <div className="h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
                     <Disc className="h-5 w-5" />
                   </div>
                   <div>
                     <CardTitle className="text-lg">SoundWave Digital</CardTitle>
-                    <Badge variant="outline" className="text-[10px] mt-0.5 border-indigo-300 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400">
+                    <Badge variant="secondary" className="text-[10px] mt-0.5">
                       Merchant A • Digital Music
                     </Badge>
                   </div>
@@ -261,7 +261,7 @@ export default function HomePage() {
                 Distributes studio-quality 24-bit FLAC audio albums, artist master stems, and verified digital ownership keys. Instant digital delivery with permanent cloud vault storage.
               </CardDescription>
 
-              <div className="p-3 rounded-lg bg-muted/60 border border-border/80 text-xs space-y-1">
+              <div className="p-3 rounded-lg bg-muted border border-border text-xs space-y-1">
                 <span className="font-semibold text-foreground text-[11px] block">Demo Orders Ready for Grounding:</span>
                 <ul className="space-y-1 text-muted-foreground text-[11px]">
                   <li>• <code className="text-foreground font-mono">#ORD-MUS-8821</code>: Neon Echoes Vol 2 (Delivered / Download Key Ready)</li>
@@ -273,14 +273,14 @@ export default function HomePage() {
 
             <CardContent className="p-6 pt-0 flex gap-2">
               <NextLink href="/storefront/music" className="flex-1">
-                <Button size="sm" variant="outline" className="w-full text-xs gap-1.5 border-indigo-300 dark:border-indigo-800">
+                <Button size="sm" variant="outline" className="w-full text-xs gap-1.5 border-border">
                   <ExternalLink className="h-3.5 w-3.5" />
                   <span>Open Music Storefront</span>
                 </Button>
               </NextLink>
 
               <NextLink href="/chat/conv_music_01" className="flex-1">
-                <Button size="sm" className="w-full text-xs gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
+                <Button size="sm" className="w-full text-xs gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>Launch SoundWave Chat</span>
                 </Button>
@@ -289,16 +289,16 @@ export default function HomePage() {
           </Card>
 
           {/* Merchant B: Groceries Store */}
-          <Card className="border-emerald-500/30 bg-gradient-to-br from-card via-card to-emerald-500/5 shadow-sm overflow-hidden flex flex-col justify-between">
+          <Card className="border-border bg-card hover:border-primary/40 shadow-xs flex flex-col justify-between">
             <CardHeader className="p-6 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="h-10 w-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/30">
+                  <div className="h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
                     <ShoppingBag className="h-5 w-5" />
                   </div>
                   <div>
                     <CardTitle className="text-lg">FreshCart Direct</CardTitle>
-                    <Badge variant="outline" className="text-[10px] mt-0.5 border-emerald-300 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400">
+                    <Badge variant="secondary" className="text-[10px] mt-0.5">
                       Merchant B • Organic Groceries
                     </Badge>
                   </div>
@@ -311,7 +311,7 @@ export default function HomePage() {
                 Farm-fresh organic produce and pasture-raised dairy delivered within 2 hours. Protected by a cold-chain guarantee with temperature-controlled insulated totes.
               </CardDescription>
 
-              <div className="p-3 rounded-lg bg-muted/60 border border-border/80 text-xs space-y-1">
+              <div className="p-3 rounded-lg bg-muted border border-border text-xs space-y-1">
                 <span className="font-semibold text-foreground text-[11px] block">Demo Orders Ready for Grounding:</span>
                 <ul className="space-y-1 text-muted-foreground text-[11px]">
                   <li>• <code className="text-foreground font-mono">#ORD-GROC-5512</code>: Avocados, Whole Milk, Cold Brew (Out for Delivery - Driver Marcus D.)</li>
@@ -323,14 +323,14 @@ export default function HomePage() {
 
             <CardContent className="p-6 pt-0 flex gap-2">
               <NextLink href="/storefront/groceries" className="flex-1">
-                <Button size="sm" variant="outline" className="w-full text-xs gap-1.5 border-emerald-300 dark:border-emerald-800">
+                <Button size="sm" variant="outline" className="w-full text-xs gap-1.5 border-border">
                   <ExternalLink className="h-3.5 w-3.5" />
                   <span>Open Grocery Storefront</span>
                 </Button>
               </NextLink>
 
               <NextLink href="/chat/conv_grocery_01" className="flex-1">
-                <Button size="sm" className="w-full text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Button size="sm" className="w-full text-xs gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>Launch FreshCart Chat</span>
                 </Button>
@@ -342,11 +342,11 @@ export default function HomePage() {
 
       {/* Technical Architecture & Verification Checklist */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <Card className="border-border/80 bg-muted/20">
+        <Card className="border-border bg-card">
           <CardHeader className="p-6 pb-4">
             <div className="flex items-center gap-2">
-              <Terminal className="h-5 w-5 text-indigo-500" />
-              <CardTitle className="text-base">Hackathon Requirements Verification Checklist</CardTitle>
+              <Terminal className="h-5 w-5 text-primary" />
+              <CardTitle className="text-base">Requirements Verification</CardTitle>
             </div>
             <CardDescription className="text-xs">
               Every deliverable from the specification has been built with clean production-grade code.
@@ -354,8 +354,8 @@ export default function HomePage() {
           </CardHeader>
           <CardContent className="p-6 pt-0">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-card border border-border/60">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-foreground">Consolidated Customer Inbox</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -364,8 +364,8 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-card border border-border/60">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-foreground">Grounded Gemini Tools</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -374,8 +374,8 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-card border border-border/60">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-foreground">Inbound & Outbound Email</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -384,8 +384,8 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-card border border-border/60">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-foreground">Local Development Outbox</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -394,8 +394,8 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-card border border-border/60">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-foreground">Firestore Dual-Mode Store</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -404,8 +404,8 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-card border border-border/60">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-foreground">Human Escalation Workflow</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">

@@ -1,19 +1,8 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Suspense } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { TooltipProvider } from '@/components/ui/tooltip';
-
-const geistSans = Geist({
-  variable: '--font-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'TD Retail | Shared Customer Support Platform & Gemini Agent',
@@ -27,11 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-background text-foreground antialiased selection:bg-indigo-500/20">
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full flex flex-col bg-background text-foreground antialiased selection:bg-primary/20">
         <TooltipProvider>
           <Suspense fallback={<div className="h-16 w-full border-b border-border bg-background" />}>
             <Navbar />
@@ -46,7 +32,7 @@ export default function RootLayout({
               </div>
               <div className="flex items-center gap-4 text-[11px]">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="h-2 w-2 rounded-full bg-primary animate-pulse"></span>
                   Grounded Gemini 2.5 Flash
                 </span>
                 <span>•</span>

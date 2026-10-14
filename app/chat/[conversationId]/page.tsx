@@ -290,14 +290,8 @@ function ConversationThreadContent() {
             </Button>
           </NextLink>
 
-          <div
-            className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
-              isMusic
-                ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
-                : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-            }`}
-          >
-            {isMusic ? <Disc className="h-5 w-5" /> : <ShoppingBag className="h-5 w-5" />}
+          <div className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-muted text-foreground border border-border">
+            {isMusic ? <Disc className="h-5 w-5 text-primary" /> : <ShoppingBag className="h-5 w-5 text-primary" />}
           </div>
 
           <div>
@@ -325,20 +319,20 @@ function ConversationThreadContent() {
           {/* Status Badge */}
           {conversation.status === 'active' && (
             <Badge
-              variant="outline"
-              className="text-xs bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-400 h-7 px-2.5"
+              variant="secondary"
+              className="text-xs h-7 px-2.5"
             >
-              <span className="h-2 w-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
+              <span className="h-2 w-2 rounded-full bg-primary mr-1.5 animate-pulse" />
               Active AI Thread
             </Badge>
           )}
 
           {conversation.status === 'escalated' && (
             <Badge
-              variant="outline"
-              className="text-xs bg-amber-50 text-amber-700 border-amber-300 dark:bg-amber-950/40 dark:text-amber-400 h-7 px-2.5"
+              variant="destructive"
+              className="text-xs h-7 px-2.5"
             >
-              <AlertTriangle className="h-3.5 w-3.5 mr-1.5 text-amber-500" />
+              <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
               Escalated to Human
             </Badge>
           )}
@@ -346,9 +340,9 @@ function ConversationThreadContent() {
           {conversation.status === 'resolved' && (
             <Badge
               variant="outline"
-              className="text-xs bg-purple-50 text-purple-700 border-purple-300 dark:bg-purple-950/40 dark:text-purple-400 h-7 px-2.5"
+              className="text-xs h-7 px-2.5"
             >
-              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5 text-purple-500" />
+              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5 text-primary" />
               Resolved
             </Badge>
           )}
@@ -359,7 +353,7 @@ function ConversationThreadContent() {
               variant="outline"
               size="sm"
               onClick={() => setShowEscalateDialog(true)}
-              className="text-xs h-7 text-amber-700 border-amber-200 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 gap-1.5"
+              className="text-xs h-7 gap-1.5"
             >
               <AlertTriangle className="h-3.5 w-3.5" />
               <span>Request Human</span>
@@ -380,16 +374,16 @@ function ConversationThreadContent() {
 
       {/* Linked Order Grounding Summary Bar */}
       {linkedOrder && (
-        <div className="my-3 rounded-xl border border-indigo-500/20 bg-indigo-50/40 dark:bg-indigo-950/20 p-3 shrink-0">
+        <div className="my-3 rounded-xl border border-border bg-muted/40 p-3 shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              <Package className="h-4 w-4 text-primary" />
               <span className="text-xs font-semibold text-foreground">
                 Grounded Order Context: <span className="font-mono">{linkedOrder.orderId}</span>
               </span>
               <Badge
                 variant="outline"
-                className="text-[10px] font-medium bg-background/80 border-indigo-200 dark:border-indigo-800"
+                className="text-[10px] font-medium bg-background border-border"
               >
                 {linkedOrder.orderStatusDisplay}
               </Badge>
@@ -409,7 +403,7 @@ function ConversationThreadContent() {
           </div>
 
           {isOrderExpanded && (
-            <div className="mt-2.5 pt-2.5 border-t border-indigo-200/50 dark:border-indigo-800/40 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs text-muted-foreground">
+            <div className="mt-2.5 pt-2.5 border-t border-border grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs text-muted-foreground">
               <div>
                 <span className="font-semibold text-foreground/80 block">Items Purchased:</span>
                 <span className="truncate block">
@@ -434,7 +428,7 @@ function ConversationThreadContent() {
               {linkedOrder.items[0]?.licenseKey && (
                 <div className="sm:col-span-2">
                   <span className="font-semibold text-foreground/80 flex items-center gap-1">
-                    <Key className="h-3 w-3 text-indigo-500" />
+                    <Key className="h-3 w-3 text-primary" />
                     Verified License Key:
                   </span>
                   <code className="text-[11px] font-mono bg-background px-1.5 py-0.5 rounded border border-border mt-0.5 inline-block">
@@ -461,7 +455,7 @@ function ConversationThreadContent() {
             return (
               <div key={msg.id} className="flex justify-center my-3">
                 <div className="px-3 py-1.5 rounded-full bg-muted/80 border border-border text-[11px] text-muted-foreground flex items-center gap-1.5">
-                  <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                  <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
                   <span>{msg.content}</span>
                 </div>
               </div>
@@ -478,10 +472,10 @@ function ConversationThreadContent() {
               {/* Sender Name & Timestamp */}
               <div className="flex items-center gap-1.5 mb-1 px-1">
                 {isAi && (
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
                 )}
                 {isHumanAgent && (
-                  <UserCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <UserCheck className="h-3.5 w-3.5 text-primary" />
                 )}
                 <span className="text-[11px] font-semibold text-foreground/80">
                   {isCustomer ? 'You' : msg.senderName}
@@ -500,8 +494,8 @@ function ConversationThreadContent() {
                   isCustomer
                     ? 'bg-primary text-primary-foreground rounded-tr-xs'
                     : isHumanAgent
-                    ? 'bg-emerald-50 text-emerald-950 dark:bg-emerald-950/30 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-800/50 rounded-tl-xs'
-                    : 'bg-card text-foreground border border-border/80 rounded-tl-xs'
+                    ? 'bg-secondary text-secondary-foreground border border-border rounded-tl-xs'
+                    : 'bg-card text-card-foreground border border-border rounded-tl-xs'
                 }`}
               >
                 {msg.content}
@@ -513,8 +507,8 @@ function ConversationThreadContent() {
                   <div className="flex items-center gap-2">
                     {msg.metadata?.isAiGrounded && (
                       <Badge
-                        variant="outline"
-                        className="text-[10px] font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 gap-1 h-5"
+                        variant="secondary"
+                        className="text-[10px] font-medium gap-1 h-5"
                       >
                         <ShieldCheck className="h-3 w-3" />
                         <span>Grounded with Merchant Order API</span>
@@ -540,14 +534,14 @@ function ConversationThreadContent() {
 
                   {/* Tool Call Inspection Details */}
                   {hasToolCalls && isExpanded && (
-                    <div className="p-2.5 rounded-lg bg-muted/60 border border-border/80 font-mono text-[11px] space-y-2">
-                      <div className="flex items-center justify-between text-muted-foreground text-[10px] pb-1 border-b border-border/50">
+                    <div className="p-2.5 rounded-lg bg-muted border border-border font-mono text-[11px] space-y-2">
+                      <div className="flex items-center justify-between text-muted-foreground text-[10px] pb-1 border-b border-border">
                         <span>Server-Side Tool Execution Sandbox</span>
                         <span>Model: {msg.metadata?.modelName || 'gemini-2.5-flash'}</span>
                       </div>
                       {msg.metadata?.toolCalls?.map((tc, idx) => (
                         <div key={idx} className="space-y-1">
-                          <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-semibold">
+                          <div className="flex items-center gap-1 text-primary font-semibold">
                             <CornerDownRight className="h-3 w-3" />
                             <span>Tool: {tc.name}</span>
                           </div>
@@ -561,7 +555,7 @@ function ConversationThreadContent() {
                             <span className="text-muted-foreground font-sans block mt-1.5 mb-0.5">
                               Server Response (Validated against tenant {conversation.merchantId}):
                             </span>
-                            <pre className="text-emerald-600 dark:text-emerald-400">
+                            <pre className="text-foreground">
                               {JSON.stringify(tc.result, null, 2)}
                             </pre>
                           </div>
@@ -635,9 +629,9 @@ function ConversationThreadContent() {
       <div className="mt-2 shrink-0">
         <button
           onClick={() => setShowDemoDrawer(!showDemoDrawer)}
-          className="w-full py-1 text-center text-[11px] font-mono text-muted-foreground hover:text-foreground flex items-center justify-center gap-1 border-t border-dashed border-border/60"
+          className="w-full py-1 text-center text-[11px] font-mono text-muted-foreground hover:text-foreground flex items-center justify-center gap-1 border-t border-dashed border-border"
         >
-          <Sparkles className="h-3 w-3 text-indigo-500" />
+          <Sparkles className="h-3 w-3 text-primary" />
           <span>
             {showDemoDrawer ? 'Hide Hackathon Demo Tools' : 'Open Hackathon Demo Console (Email Webhook & Human Specialist Simulator)'}
           </span>
@@ -645,15 +639,15 @@ function ConversationThreadContent() {
         </button>
 
         {showDemoDrawer && (
-          <div className="mt-2 p-3 rounded-xl border border-border bg-card/90 shadow-lg text-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-border/60 pb-1.5">
+          <div className="mt-2 p-3 rounded-xl border border-border bg-card shadow-lg text-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-border pb-1.5">
               <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                <Info className="h-3.5 w-3.5 text-indigo-500" />
+                <Info className="h-3.5 w-3.5 text-primary" />
                 <span>Judge & Evaluation Controls for Conversation #{conversationId}</span>
               </div>
               <NextLink
                 href="/outbox"
-                className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                className="text-[11px] text-primary hover:underline flex items-center gap-1"
               >
                 <Mail className="h-3 w-3" />
                 <span>View Outbox Emails</span>
@@ -661,17 +655,17 @@ function ConversationThreadContent() {
             </div>
 
             {demoNotice && (
-              <div className="p-2 rounded bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 text-[11px]">
+              <div className="p-2 rounded bg-muted text-foreground border border-border text-[11px]">
                 {demoNotice}
               </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Simulator 1: SendGrid Inbound Email Webhook */}
-              <div className="p-2.5 rounded-lg border border-border bg-muted/30 space-y-2">
+              <div className="p-2.5 rounded-lg border border-border bg-muted/40 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-foreground text-[11px] flex items-center gap-1">
-                    <Mail className="h-3.5 w-3.5 text-blue-500" />
+                    <Mail className="h-3.5 w-3.5 text-primary" />
                     Simulate Customer Email Reply
                   </span>
                   <Badge variant="outline" className="text-[9px]">
@@ -700,10 +694,10 @@ function ConversationThreadContent() {
               </div>
 
               {/* Simulator 2: Human Support Specialist Reply */}
-              <div className="p-2.5 rounded-lg border border-border bg-muted/30 space-y-2">
+              <div className="p-2.5 rounded-lg border border-border bg-muted/40 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-foreground text-[11px] flex items-center gap-1">
-                    <UserCheck className="h-3.5 w-3.5 text-emerald-500" />
+                    <UserCheck className="h-3.5 w-3.5 text-primary" />
                     Reply as Human Specialist
                   </span>
                   <Badge variant="outline" className="text-[9px]">
@@ -733,7 +727,7 @@ function ConversationThreadContent() {
                     size="sm"
                     onClick={() => handleHumanAgentReply(true)}
                     disabled={!humanAgentReplyText.trim() || isAgentReplying}
-                    className="flex-1 text-xs h-7 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="flex-1 text-xs h-7 bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     Reply & Resolve
                   </Button>
@@ -749,7 +743,7 @@ function ConversationThreadContent() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               <span>Request Human Specialist Assistance</span>
             </DialogTitle>
             <DialogDescription>
@@ -795,10 +789,11 @@ function ConversationThreadContent() {
                 Cancel
               </Button>
               <Button
+                variant="destructive"
                 size="sm"
                 disabled={isEscalating}
                 onClick={handleEscalate}
-                className="bg-amber-600 hover:bg-amber-700 text-white gap-2"
+                className="gap-2"
               >
                 {isEscalating ? 'Escalating...' : 'Confirm Escalation'}
               </Button>

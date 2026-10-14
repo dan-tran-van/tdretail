@@ -192,7 +192,7 @@ export default function ConsolidatedInboxPage() {
           <DialogContent className="sm:max-w-xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-indigo-600" />
+                <MessageSquare className="h-5 w-5 text-primary" />
                 <span>Open Support Ticket</span>
               </DialogTitle>
               <DialogDescription>
@@ -227,17 +227,15 @@ export default function ConsolidatedInboxPage() {
                         }}
                         className={`flex flex-col p-3 rounded-xl border text-left transition-all ${
                           isSelected
-                            ? isMusic
-                              ? 'border-indigo-500 bg-indigo-500/10 ring-2 ring-indigo-500/30'
-                              : 'border-emerald-500 bg-emerald-500/10 ring-2 ring-emerald-500/30'
+                            ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
                             : 'border-border hover:bg-muted/60'
                         }`}
                       >
                         <div className="flex items-center gap-2 mb-1">
                           {isMusic ? (
-                            <Disc className="h-4 w-4 text-indigo-500" />
+                            <Disc className="h-4 w-4 text-foreground" />
                           ) : (
-                            <ShoppingBag className="h-4 w-4 text-emerald-500" />
+                            <ShoppingBag className="h-4 w-4 text-foreground" />
                           )}
                           <span className="font-semibold text-xs text-foreground">
                             {m.name}
@@ -342,7 +340,7 @@ export default function ConsolidatedInboxPage() {
 
       {/* Metrics Banner */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-card/70 border-border/80 shadow-xs">
+        <Card className="bg-card border-border shadow-xs">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
@@ -350,13 +348,13 @@ export default function ConsolidatedInboxPage() {
               </p>
               <p className="text-2xl font-bold text-foreground mt-0.5">{conversations.length}</p>
             </div>
-            <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-              <Inbox className="h-5 w-5" />
+            <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
+              <Inbox className="h-5 w-5 text-primary" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 border-border/80 shadow-xs">
+        <Card className="bg-card border-border shadow-xs">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
@@ -364,13 +362,13 @@ export default function ConsolidatedInboxPage() {
               </p>
               <p className="text-2xl font-bold text-foreground mt-0.5">{activeCount}</p>
             </div>
-            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-              <Sparkles className="h-5 w-5" />
+            <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-primary" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 border-border/80 shadow-xs">
+        <Card className="bg-card border-border shadow-xs">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
@@ -378,13 +376,13 @@ export default function ConsolidatedInboxPage() {
               </p>
               <p className="text-2xl font-bold text-foreground mt-0.5">{escalatedCount}</p>
             </div>
-            <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-              <AlertTriangle className="h-5 w-5" />
+            <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
+              <AlertTriangle className="h-5 w-5 text-primary" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 border-border/80 shadow-xs">
+        <Card className="bg-card border-border shadow-xs">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
@@ -392,15 +390,15 @@ export default function ConsolidatedInboxPage() {
               </p>
               <p className="text-2xl font-bold text-foreground mt-0.5">{resolvedCount}</p>
             </div>
-            <div className="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-              <CheckCircle2 className="h-5 w-5" />
+            <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between p-2 rounded-2xl bg-card/60 border border-border/80">
+      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between p-2 rounded-2xl bg-card border border-border">
         {/* Merchant Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
           <Button
@@ -423,18 +421,12 @@ export default function ConsolidatedInboxPage() {
                 variant={isSelected ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setSelectedMerchantFilter(m.id)}
-                className={`text-xs h-8 rounded-lg gap-1.5 ${
-                  isSelected
-                    ? isMusic
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-emerald-600 text-white'
-                    : ''
-                }`}
+                className="text-xs h-8 rounded-lg gap-1.5"
               >
                 {isMusic ? (
-                  <Disc className="h-3.5 w-3.5 text-indigo-400" />
+                  <Disc className="h-3.5 w-3.5" />
                 ) : (
-                  <ShoppingBag className="h-3.5 w-3.5 text-emerald-400" />
+                  <ShoppingBag className="h-3.5 w-3.5" />
                 )}
                 <span>{m.name}</span>
                 <span className="opacity-70 text-[10px]">({count})</span>
@@ -516,17 +508,11 @@ export default function ConsolidatedInboxPage() {
                   <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-start gap-4 flex-1 min-w-0">
                       {/* Merchant Avatar Icon */}
-                      <div
-                        className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
-                          isMusic
-                            ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
-                            : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                        }`}
-                      >
+                      <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-muted text-foreground border border-border">
                         {isMusic ? (
-                          <Disc className="h-5 w-5" />
+                          <Disc className="h-5 w-5 text-primary" />
                         ) : (
-                          <ShoppingBag className="h-5 w-5" />
+                          <ShoppingBag className="h-5 w-5 text-primary" />
                         )}
                       </div>
 
@@ -534,20 +520,14 @@ export default function ConsolidatedInboxPage() {
                       <div className="flex flex-col flex-1 min-w-0">
                         {/* Header metadata row */}
                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <span
-                            className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
-                              isMusic
-                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300'
-                                : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
-                            }`}
-                          >
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-muted text-foreground">
                             {merchant?.name || 'Merchant'}
                           </span>
 
                           {conv.orderId && (
                             <Badge
                               variant="outline"
-                              className="text-[11px] font-mono font-medium bg-muted/50 border-border"
+                              className="text-[11px] font-mono font-medium border-border"
                             >
                               Order #{conv.orderId}
                             </Badge>
@@ -556,20 +536,20 @@ export default function ConsolidatedInboxPage() {
                           {/* Status Badge */}
                           {conv.status === 'active' && (
                             <Badge
-                              variant="outline"
-                              className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-400"
+                              variant="secondary"
+                              className="text-[10px]"
                             >
-                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
+                              <span className="h-1.5 w-1.5 rounded-full bg-primary mr-1.5 animate-pulse" />
                               Active AI Thread
                             </Badge>
                           )}
 
                           {conv.status === 'escalated' && (
                             <Badge
-                              variant="outline"
-                              className="text-[10px] bg-amber-50 text-amber-700 border-amber-300 dark:bg-amber-950/40 dark:text-amber-400"
+                              variant="destructive"
+                              className="text-[10px]"
                             >
-                              <AlertTriangle className="h-3 w-3 mr-1 text-amber-500" />
+                              <AlertTriangle className="h-3 w-3 mr-1" />
                               Escalated to Specialist
                             </Badge>
                           )}
@@ -577,9 +557,9 @@ export default function ConsolidatedInboxPage() {
                           {conv.status === 'resolved' && (
                             <Badge
                               variant="outline"
-                              className="text-[10px] bg-purple-50 text-purple-700 border-purple-300 dark:bg-purple-950/40 dark:text-purple-400"
+                              className="text-[10px]"
                             >
-                              <CheckCircle2 className="h-3 w-3 mr-1 text-purple-500" />
+                              <CheckCircle2 className="h-3 w-3 mr-1 text-primary" />
                               Resolved
                             </Badge>
                           )}

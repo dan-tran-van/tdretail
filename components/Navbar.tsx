@@ -106,7 +106,7 @@ export function Navbar() {
         {/* Brand Logo & Platform Title */}
         <div className="flex items-center gap-6">
           <NextLink href="/" className="flex items-center gap-2.5 group">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+            <div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-xs group-hover:opacity-90 transition-opacity">
               <Sparkles className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
@@ -116,7 +116,7 @@ export function Navbar() {
                 </span>
                 <Badge
                   variant="outline"
-                  className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0 h-4 border-indigo-500/30 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/30"
+                  className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0 h-4 border-border text-muted-foreground"
                 >
                   Shared Platform
                 </Badge>
@@ -138,7 +138,7 @@ export function Navbar() {
                 <Inbox className="h-4 w-4" />
                 <span>Customer Inbox</span>
                 {unreadCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-indigo-600 text-white">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-primary text-primary-foreground">
                     {unreadCount}
                   </span>
                 )}
@@ -170,9 +170,9 @@ export function Navbar() {
                 <Button
                   variant={pathname.includes('/storefront/music') ? 'secondary' : 'ghost'}
                   size="sm"
-                  className="gap-1.5 text-xs h-8 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700"
+                  className="gap-1.5 text-xs h-8 text-foreground"
                 >
-                  <Disc className="h-3.5 w-3.5" />
+                  <Disc className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>Digital Music</span>
                 </Button>
               </NextLink>
@@ -181,9 +181,9 @@ export function Navbar() {
                 <Button
                   variant={pathname.includes('/storefront/groceries') ? 'secondary' : 'ghost'}
                   size="sm"
-                  className="gap-1.5 text-xs h-8 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700"
+                  className="gap-1.5 text-xs h-8 text-foreground"
                 >
-                  <ShoppingBag className="h-3.5 w-3.5" />
+                  <ShoppingBag className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>Groceries</span>
                 </Button>
               </NextLink>
@@ -214,9 +214,9 @@ export function Navbar() {
               onClick={() => setShowPersonaMenu(!showPersonaMenu)}
               className="flex items-center gap-2 px-2.5 py-1 rounded-full border border-border bg-card hover:bg-muted/60 transition-colors text-left"
             >
-              <Avatar className="h-7 w-7 border border-primary/20">
+              <Avatar className="h-7 w-7 border border-border">
                 <AvatarImage src={currentCustomer?.avatarUrl} />
-                <AvatarFallback className="text-xs bg-indigo-100 text-indigo-700 font-semibold">
+                <AvatarFallback className="text-xs bg-muted text-foreground font-semibold">
                   {currentCustomer?.name?.charAt(0) || 'C'}
                 </AvatarFallback>
               </Avatar>
@@ -273,7 +273,7 @@ export function Navbar() {
                               {cust.name}
                             </span>
                             {isSelected && (
-                              <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">
+                              <span className="text-[10px] text-primary font-bold">
                                 Active
                               </span>
                             )}

@@ -109,8 +109,8 @@ export default function OutboxPage() {
               Local Development Email Outbox
             </h1>
             <Badge
-              variant="outline"
-              className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 text-xs px-2"
+              variant="secondary"
+              className="text-xs px-2"
             >
               SendGrid Inbound & Outbound Pipeline
             </Badge>
@@ -177,9 +177,9 @@ export default function OutboxPage() {
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5">
                         {isMusic ? (
-                          <Disc className="h-3.5 w-3.5 text-indigo-500" />
+                          <Disc className="h-3.5 w-3.5 text-primary" />
                         ) : (
-                          <ShoppingBag className="h-3.5 w-3.5 text-emerald-500" />
+                          <ShoppingBag className="h-3.5 w-3.5 text-primary" />
                         )}
                         <span className="text-xs font-semibold text-foreground truncate">
                           {email.merchantName}
@@ -187,12 +187,8 @@ export default function OutboxPage() {
                       </div>
 
                       <Badge
-                        variant="outline"
-                        className={`text-[9px] h-4 px-1.5 ${
-                          email.status === 'sent'
-                            ? 'text-emerald-600 border-emerald-300'
-                            : 'text-muted-foreground border-border'
-                        }`}
+                        variant={email.status === 'sent' ? 'default' : 'secondary'}
+                        className="text-[9px] h-4 px-1.5"
                       >
                         {email.status === 'sent' ? 'SendGrid Live' : 'Simulated Outbox'}
                       </Badge>
@@ -237,7 +233,7 @@ export default function OutboxPage() {
                     <Button
                       size="sm"
                       onClick={() => handleSimulateReply(selectedEmail)}
-                      className="h-7 text-xs gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white"
+                      className="h-7 text-xs gap-1.5"
                     >
                       <CornerUpLeft className="h-3.5 w-3.5" />
                       <span>Simulate Customer Reply</span>
@@ -261,7 +257,7 @@ export default function OutboxPage() {
                     <span className="text-muted-foreground w-16 shrink-0">To:</span>
                     <span className="text-foreground">{selectedEmail.to}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold">
+                  <div className="flex items-center gap-2 text-primary font-semibold">
                     <span className="text-muted-foreground w-16 shrink-0 font-normal">Reply-To:</span>
                     <span>{selectedEmail.replyTo}</span>
                   </div>
@@ -293,14 +289,14 @@ export default function OutboxPage() {
                 </div>
 
                 {/* Routing Explanation Banner */}
-                <div className="p-3.5 rounded-xl border border-blue-500/20 bg-blue-50/40 dark:bg-blue-950/20 text-xs space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-semibold text-blue-800 dark:text-blue-300">
-                    <ShieldCheck className="h-4 w-4" />
+                <div className="p-3.5 rounded-xl border border-border bg-muted/50 text-xs space-y-1.5">
+                  <div className="flex items-center gap-1.5 font-semibold text-foreground">
+                    <ShieldCheck className="h-4 w-4 text-primary" />
                     <span>How SendGrid Inbound Reply Routing Works in TD Retail</span>
                   </div>
-                  <p className="text-[11px] text-blue-700/80 dark:text-blue-300/80 leading-relaxed">
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
                     The platform sets the email header{' '}
-                    <code className="bg-background px-1 py-0.5 rounded border border-blue-300 dark:border-blue-800 font-mono text-[10px]">
+                    <code className="bg-background px-1 py-0.5 rounded border border-border font-mono text-[10px] text-foreground">
                       Reply-To: {selectedEmail.replyTo}
                     </code>
                     . When the customer replies directly via their email client (Gmail, Outlook, Apple Mail),
@@ -324,7 +320,7 @@ export default function OutboxPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CornerUpLeft className="h-5 w-5 text-indigo-600" />
+              <CornerUpLeft className="h-5 w-5 text-primary" />
               <span>Simulate Customer Email Reply</span>
             </DialogTitle>
             <DialogDescription>
@@ -335,7 +331,7 @@ export default function OutboxPage() {
 
           <div className="space-y-4 pt-2">
             {simStatus && (
-              <div className="p-3 rounded-lg text-xs bg-indigo-50 text-indigo-900 dark:bg-indigo-950/50 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800">
+              <div className="p-3 rounded-lg text-xs bg-muted text-foreground border border-border">
                 {simStatus}
               </div>
             )}
@@ -387,7 +383,7 @@ export default function OutboxPage() {
                   size="sm"
                   disabled={submittingReply || !replyText.trim()}
                   onClick={submitSimulatedReply}
-                  className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="gap-2"
                 >
                   {submittingReply ? (
                     <RefreshCw className="h-3.5 w-3.5 animate-spin" />
