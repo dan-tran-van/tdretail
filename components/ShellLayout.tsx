@@ -7,13 +7,13 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 
 function ShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  // Hide global navbar and footer on chat pages, inbox, and outbox (full-screen modern chatbot app shell)
-  const isChatApp =
+  // Hide global navbar and footer on chat pages, inbox, and outbox
+  const isFullAppPage =
     pathname?.startsWith('/chat') ||
     pathname?.startsWith('/inbox') ||
     pathname?.startsWith('/outbox');
 
-  if (isChatApp) {
+  if (isFullAppPage) {
     return (
       <main className="h-screen w-screen overflow-hidden flex flex-col bg-background text-foreground antialiased selection:bg-primary/20">
         {children}

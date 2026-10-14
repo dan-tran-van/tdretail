@@ -154,8 +154,14 @@ export function ModernAppShell({
         body: JSON.stringify({ customerId }),
       });
       if (res.ok) {
+        const data = await res.json();
+        if (data.customer) {
+          setCustomer(data.customer);
+        }
         await fetchData();
         router.refresh();
+        // Force complete client reload so all conversations/messages reflect new customer
+        window.location.reload();
       }
     } catch (e) {
       console.error('Error switching persona:', e);
@@ -280,20 +286,6 @@ export function ModernAppShell({
               {isSidebarOpen && <span>All Conversations</span>}
             </Button>
           </NextLink>
-
-          <NextLink href="/outbox">
-            <Button
-              variant={pathname === '/outbox' ? 'secondary' : 'ghost'}
-              size="sm"
-              className={`w-full text-xs h-8 ${
-                isSidebarOpen ? 'justify-start gap-2.5 px-3' : 'justify-center px-0'
-              }`}
-              title="Outbox Inspector"
-            >
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              {isSidebarOpen && <span>Email Outbox</span>}
-            </Button>
-          </NextLink>
         </div>
 
         {/* Conversation List (Chat History) */}
@@ -414,7 +406,7 @@ export function ModernAppShell({
               )}
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="w-64 p-1.5">
+            <DropdownMenuContent side="top" align="start" sideOffset={8} className="w-64 p-1.5 z-50">
               <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
                 Demo Shopper Persona
               </DropdownMenuLabel>
