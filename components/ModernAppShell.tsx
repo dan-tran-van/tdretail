@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   MessageSquare,
   Plus,
-  PanelLeftClose,
-  PanelLeft,
   Mail,
   Store,
   Disc,
@@ -17,23 +15,12 @@ import {
   Sparkles,
   ChevronRight,
   User,
-  CheckCircle2,
   AlertTriangle,
-  Clock,
-  ArrowRight,
-  LogOut,
+  ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
@@ -41,14 +28,42 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Conversation, Customer, Merchant, Order } from '@/lib/types';
-
 import { getCookie, setCookie } from 'cookies-next';
 
 interface ModernAppShellProps {
   children: React.ReactNode;
   activeConversationId?: string;
   onRefresh?: () => void;
+}
+
+function getMerchantIcon(merchantId?: string, category?: string) {
+  if (merchantId === 'merchant_music' || category === 'digital_music') {
+    return Disc;
+  }
+  return ShoppingBag;
 }
 
 export function ModernAppShell({
@@ -59,17 +74,17 @@ export function ModernAppShell({
   const pathname = usePathname();
   const router = useRouter();
 
-  // Sidebar expanded state: initialize directly from cookie / localStorage to prevent layout jumping/flickering on navigation
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
+  // Sidebar expanded state: initialize from cookie
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true;
     try {
-      const cookieVal = getCookie('tdretail_sidebar_open');
+      const cookieVal = getCookie('sidebar_state');
       if (cookieVal !== undefined && cookieVal !== null) {
         return String(cookieVal) === 'true';
       }
-      const saved = localStorage.getItem('tdretail_sidebar_open');
-      if (saved !== null) {
-        return saved === 'true';
+      const legacyVal = getCookie('tdretail_sidebar_open');
+      if (legacyVal !== undefined && legacyVal !== null) {
+        return String(legacyVal) === 'true';
       }
     } catch (e) {
       // fallback
@@ -77,10 +92,10 @@ export function ModernAppShell({
     return true;
   });
 
-  const toggleSidebar = (open: boolean) => {
-    setIsSidebarOpen(open);
+  const handleOpenChange = (open: boolean) => {
+    setSidebarOpen(open);
     try {
-      localStorage.setItem('tdretail_sidebar_open', String(open));
+      setCookie('sidebar_state', String(open), { maxAge: 60 * 60 * 24 * 365, path: '/' });
       setCookie('tdretail_sidebar_open', String(open), { maxAge: 60 * 60 * 24 * 365, path: '/' });
     } catch (e) {
       // ignore
@@ -148,12 +163,38 @@ export function ModernAppShell({
     return () => clearInterval(interval);
   }, [pathname, activeConversationId]);
 
+  // Group conversations by merchant
+  const groupedConversations = useMemo(() => {
+    const merchantMap = new Map<string, { merchant: Merchant | { id: string; name: string }; convs: Conversation[] }>();
+
+    // Initialize with known merchants
+    merchants.forEach((m) => {
+      merchantMap.set(m.id, { merchant: m, convs: [] });
+    });
+
+    // Populate conversations
+    conversations.forEach((conv) => {
+      const mId = conv.merchantId || 'other';
+      if (!merchantMap.has(mId)) {
+        merchantMap.set(mId, {
+          merchant: { id: mId, name: conv.merchantName || 'Other Store' },
+          convs: [],
+        });
+      }
+      merchantMap.get(mId)!.convs.push(conv);
+    });
+
+    // Sort merchants: those with active conversations first, then alphabetical
+    return Array.from(merchantMap.values()).filter(
+      (group) => group.convs.length > 0 || merchants.some((m) => m.id === group.merchant.id)
+    );
+  }, [conversations, merchants]);
+
   const switchCustomer = async (customerId: string) => {
     try {
       setIsSwitchingPersona(true);
-      // Immediately set cookie on client side as well for safety
       document.cookie = `td_customer_id=${customerId}; path=/; max-age=604800`;
-      
+
       const res = await fetch('/api/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -165,7 +206,6 @@ export function ModernAppShell({
           setCustomer(data.customer);
         }
         setIsPersonaDialogOpen(false);
-        // Force complete page reload to update all chats, orders, and tickets
         window.location.href = '/inbox';
       }
     } catch (e) {
@@ -213,218 +253,181 @@ export function ModernAppShell({
   };
 
   return (
-    <div className="flex-1 flex overflow-hidden relative h-screen w-screen">
-      {/* Modern Collapsible Sidebar */}
-      <aside
-        className={`h-full border-r border-border bg-card/60 backdrop-blur transition-all duration-300 ease-in-out flex flex-col z-20 shrink-0 ${
-          isSidebarOpen ? 'w-72 sm:w-80' : 'w-16'
-        }`}
-      >
+    <SidebarProvider
+      open={sidebarOpen}
+      onOpenChange={handleOpenChange}
+      className="h-screen w-screen overflow-hidden"
+    >
+      <Sidebar collapsible="icon" className="border-r border-border">
         {/* Sidebar Header */}
-        <div className="p-3 border-b border-border/80 flex items-center justify-between gap-2 shrink-0">
-          {isSidebarOpen ? (
-            <>
-              <Button
-                onClick={() => setIsNewTicketOpen(true)}
-                className="flex-1 h-9 gap-2 text-xs font-semibold shadow-xs justify-start px-3"
-              >
-                <Plus className="h-4 w-4" />
-                <span>New Inquiry</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => toggleSidebar(false)}
-                title="Collapse sidebar"
-                className="h-9 w-9 text-muted-foreground hover:text-foreground shrink-0"
-              >
-                <PanelLeftClose className="h-4 w-4" />
-              </Button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center gap-2 w-full">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => toggleSidebar(true)}
-                title="Expand sidebar"
-                className="h-9 w-9 text-muted-foreground hover:text-foreground"
-              >
-                <PanelLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                onClick={() => setIsNewTicketOpen(true)}
-                title="New inquiry"
-                className="h-9 w-9"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation Quick Links */}
-        <div className="p-2 border-b border-border/60 flex flex-col gap-1 shrink-0">
-          <NextLink href="/">
+        <SidebarHeader className="p-3 border-b border-border/80">
+          <div className="flex items-center justify-between gap-2">
             <Button
-              variant={pathname === '/' ? 'secondary' : 'ghost'}
-              size="sm"
-              className={`w-full text-xs h-8 ${
-                isSidebarOpen ? 'justify-start gap-2.5 px-3' : 'justify-center px-0'
-              }`}
-              title="Home Platform Landing"
+              onClick={() => setIsNewTicketOpen(true)}
+              className="flex-1 h-9 gap-2 text-xs font-semibold shadow-xs justify-start px-3 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-8"
+              title="New Inquiry"
             >
-              <Home className="h-4 w-4 text-muted-foreground" />
-              {isSidebarOpen && <span>Home & Demos</span>}
+              <Plus className="h-4 w-4 shrink-0" />
+              <span className="group-data-[collapsible=icon]:hidden">New Inquiry</span>
             </Button>
-          </NextLink>
+            <SidebarTrigger className="h-9 w-9 text-muted-foreground hover:text-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
+          </div>
 
-          <NextLink href="/inbox">
-            <Button
-              variant={pathname === '/inbox' ? 'secondary' : 'ghost'}
-              size="sm"
-              className={`w-full text-xs h-8 ${
-                isSidebarOpen ? 'justify-start gap-2.5 px-3' : 'justify-center px-0'
-              }`}
-              title="Inbox Dashboard"
-            >
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-              {isSidebarOpen && <span>All Conversations</span>}
-            </Button>
-          </NextLink>
-        </div>
+          {/* Quick Nav Links */}
+          <SidebarMenu className="mt-2">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={pathname === '/'}
+                tooltip="Home & Demos"
+                render={
+                  <NextLink href="/" className="flex items-center gap-2.5">
+                    <Home className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="truncate">Home & Demos</span>
+                  </NextLink>
+                }
+              />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={pathname === '/inbox'}
+                tooltip="All Conversations"
+                render={
+                  <NextLink href="/inbox" className="flex items-center gap-2.5">
+                    <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="truncate">All Conversations</span>
+                  </NextLink>
+                }
+              />
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
 
-        {/* Conversation List (Chat History) */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-1">
-          {isSidebarOpen && (
-            <div className="px-2 py-1 flex items-center justify-between text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              <span>Recent Chats</span>
-              <span>{conversations.length}</span>
-            </div>
-          )}
-
+        {/* Sidebar Content: Chats Grouped By Merchant */}
+        <SidebarContent className="py-2">
           {isLoading ? (
             <div className="p-4 text-center text-xs text-muted-foreground">
               <RefreshCw className="h-4 w-4 animate-spin mx-auto mb-1 text-primary" />
-              {isSidebarOpen && <span>Loading chats...</span>}
+              <span className="group-data-[collapsible=icon]:hidden">Loading chats...</span>
             </div>
           ) : conversations.length === 0 ? (
-            isSidebarOpen && (
-              <div className="p-4 text-center text-xs text-muted-foreground">
-                <p>No conversations yet.</p>
-                <p className="mt-1 text-[11px]">Click "New Inquiry" to ask Gemini.</p>
-              </div>
-            )
+            <div className="p-4 text-center text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+              <p>No conversations yet.</p>
+              <p className="mt-1 text-[11px]">Click "New Inquiry" to ask Gemini.</p>
+            </div>
           ) : (
-            conversations.map((conv) => {
-              const isActive = activeConversationId === conv.id;
-              const isMusic = conv.merchantId === 'merchant_music';
-
-              if (!isSidebarOpen) {
-                return (
-                  <NextLink key={conv.id} href={`/chat/${conv.id}`}>
-                    <Button
-                      variant={isActive ? 'secondary' : 'ghost'}
-                      size="icon"
-                      className="w-full h-10 my-0.5 relative"
-                      title={`${conv.subject} (${conv.merchantName})`}
-                    >
-                      {isMusic ? (
-                        <Disc className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-                      )}
-                      {conv.status === 'escalated' && (
-                        <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive" />
-                      )}
-                    </Button>
-                  </NextLink>
-                );
-              }
+            groupedConversations.map((group) => {
+              const MerchantIcon = getMerchantIcon(group.merchant.id, (group.merchant as Merchant).category);
+              const hasActiveChat = group.convs.some((c) => c.id === activeConversationId);
 
               return (
-                <NextLink key={conv.id} href={`/chat/${conv.id}`}>
-                  <div
-                    className={`group flex items-start gap-2.5 p-2.5 rounded-xl transition-all cursor-pointer text-left border ${
-                      isActive
-                        ? 'bg-secondary text-secondary-foreground border-border shadow-xs'
-                        : 'hover:bg-muted/60 border-transparent text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <div className="mt-0.5 shrink-0">
-                      {isMusic ? (
-                        <Disc className="h-4 w-4 text-primary" />
-                      ) : (
-                        <ShoppingBag className="h-4 w-4 text-primary" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1 mb-0.5">
-                        <span className="font-semibold text-xs text-foreground truncate">
-                          {conv.subject}
-                        </span>
-                        {conv.status === 'escalated' ? (
-                          <Badge variant="destructive" className="text-[9px] h-3.5 px-1 uppercase">
-                            Escalated
-                          </Badge>
-                        ) : conv.status === 'resolved' ? (
-                          <Badge variant="outline" className="text-[9px] h-3.5 px-1 uppercase">
-                            Resolved
-                          </Badge>
-                        ) : null}
-                      </div>
-                      <p className="text-[11px] text-muted-foreground truncate">
-                        {conv.lastMessageSnippet || conv.merchantName || 'Support conversation'}
-                      </p>
-                    </div>
-                  </div>
-                </NextLink>
+                <Collapsible
+                  key={group.merchant.id}
+                  defaultOpen={true}
+                  className="group/collapsible"
+                >
+                  <SidebarGroup className="p-1">
+                    <SidebarGroupLabel
+                      render={
+                        <CollapsibleTrigger className="flex w-full items-center justify-between text-xs font-semibold text-muted-foreground hover:text-foreground py-1 px-2 rounded-md hover:bg-sidebar-accent/50 transition-colors">
+                          <span className="flex items-center gap-2 truncate">
+                            <MerchantIcon className="h-3.5 w-3.5 shrink-0 text-primary" />
+                            <span className="truncate group-data-[collapsible=icon]:hidden">
+                              {group.merchant.name}
+                            </span>
+                          </span>
+                          <span className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
+                            <span className="text-[10px] font-normal text-muted-foreground bg-muted/60 px-1.5 py-0.2 rounded-full">
+                              {group.convs.length}
+                            </span>
+                            <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-data-open/collapsible:rotate-180" />
+                          </span>
+                        </CollapsibleTrigger>
+                      }
+                    />
+
+                    <CollapsibleContent>
+                      <SidebarGroupContent>
+                        <SidebarMenu>
+                          {group.convs.length === 0 ? (
+                            <div className="px-3 py-1.5 text-[11px] text-muted-foreground italic group-data-[collapsible=icon]:hidden">
+                              No chats
+                            </div>
+                          ) : (
+                            group.convs.map((conv) => {
+                              const isActive = activeConversationId === conv.id;
+                              const ItemIcon = getMerchantIcon(conv.merchantId);
+
+                              return (
+                                <SidebarMenuItem key={conv.id}>
+                                  <SidebarMenuButton
+                                    isActive={isActive}
+                                    tooltip={conv.subject}
+                                    className="h-8 text-xs font-normal"
+                                    render={
+                                      <NextLink
+                                        href={`/chat/${conv.id}`}
+                                        className="flex items-center gap-2 w-full min-w-0"
+                                      >
+                                        <ItemIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-data-active/menu-button:text-primary" />
+                                        <span className="truncate text-xs">{conv.subject}</span>
+                                      </NextLink>
+                                    }
+                                  />
+                                </SidebarMenuItem>
+                              );
+                            })
+                          )}
+                        </SidebarMenu>
+                      </SidebarGroupContent>
+                    </CollapsibleContent>
+                  </SidebarGroup>
+                </Collapsible>
               );
             })
           )}
-        </div>
+        </SidebarContent>
 
         {/* Sidebar Footer: Active Shopper Persona */}
-        <div className="p-3 border-t border-border/80 bg-background/50 shrink-0">
-          <button
-            type="button"
-            onClick={() => setIsPersonaDialogOpen(true)}
-            className={`w-full flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-muted transition-colors text-left outline-none cursor-pointer group ${
-              !isSidebarOpen ? 'justify-center' : ''
-            }`}
-            title="Click to Switch Demo Persona"
-          >
-            <Avatar className="h-7 w-7 border border-border shrink-0">
-              <AvatarImage src={customer?.avatarUrl} />
-              <AvatarFallback className="text-xs bg-muted text-foreground font-semibold">
-                {customer?.name?.charAt(0) || 'C'}
-              </AvatarFallback>
-            </Avatar>
-
-            {isSidebarOpen && (
-              <div className="flex flex-col min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs font-semibold text-foreground truncate">
-                    {customer?.name || 'Customer'}
+        <SidebarFooter className="p-2 border-t border-border/80">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                size="lg"
+                tooltip={customer ? `${customer.name} (${customer.email})` : 'Shopper Persona'}
+                onClick={() => setIsPersonaDialogOpen(true)}
+                className="w-full h-11 p-1.5 rounded-lg hover:bg-sidebar-accent transition-colors"
+              >
+                <Avatar className="h-7 w-7 border border-border shrink-0">
+                  <AvatarImage src={customer?.avatarUrl} />
+                  <AvatarFallback className="text-xs bg-muted text-foreground font-semibold">
+                    {customer?.name?.charAt(0) || 'C'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col min-w-0 flex-1 text-left group-data-[collapsible=icon]:hidden">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-xs font-semibold text-foreground truncate">
+                      {customer?.name || 'Customer'}
+                    </span>
+                    <Badge variant="outline" className="text-[9px] h-3.5 px-1 font-normal text-muted-foreground">
+                      Switch
+                    </Badge>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground truncate">
+                    {customer?.email}
                   </span>
-                  <Badge variant="outline" className="text-[9px] h-3.5 px-1 font-normal text-muted-foreground group-hover:border-foreground/30">
-                    Switch
-                  </Badge>
                 </div>
-                <span className="text-[10px] text-muted-foreground truncate">
-                  {customer?.email}
-                </span>
-              </div>
-            )}
-          </button>
-        </div>
-      </aside>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+
+        <SidebarRail />
+      </Sidebar>
 
       {/* Main App Content View Area */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
+      <SidebarInset className="flex-1 flex flex-col h-full overflow-hidden bg-background">
         {children}
-      </main>
+      </SidebarInset>
 
       {/* New Support Inquiry Modal Dialog */}
       <Dialog open={isNewTicketOpen} onOpenChange={setIsNewTicketOpen}>
@@ -605,6 +608,6 @@ export function ModernAppShell({
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </SidebarProvider>
   );
 }
