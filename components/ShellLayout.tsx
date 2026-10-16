@@ -4,6 +4,7 @@ import React, { Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { ModernAppShell } from '@/components/ModernAppShell';
 
 function ShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -15,9 +16,9 @@ function ShellContent({ children }: { children: React.ReactNode }) {
 
   if (isFullAppPage) {
     return (
-      <main className="h-screen w-screen overflow-hidden flex flex-col bg-background text-foreground antialiased selection:bg-primary/20">
+      <ModernAppShell>
         {children}
-      </main>
+      </ModernAppShell>
     );
   }
 

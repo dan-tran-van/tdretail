@@ -19,9 +19,9 @@ export function initFirebaseAdmin(): { app: App | null; firestore: Firestore | n
       const serviceAccount = JSON.parse(serviceAccountKeyJson);
       firebaseAppInstance = getApps().length === 0
         ? initializeApp({
-            credential: cert(serviceAccount),
-            projectId: serviceAccount.project_id || projectId,
-          })
+          credential: cert(serviceAccount),
+          projectId: serviceAccount.project_id || projectId,
+        })
         : getApps()[0];
       firestoreInstance = getFirestore(firebaseAppInstance);
       isConfigured = true;

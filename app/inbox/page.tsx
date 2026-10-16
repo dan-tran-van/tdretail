@@ -22,7 +22,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ModernAppShell } from '@/components/ModernAppShell';
 import { Conversation, Merchant, Order, Customer } from '@/lib/types';
 
 export default function ConsolidatedInboxPage() {
@@ -89,8 +88,7 @@ export default function ConsolidatedInboxPage() {
   const resolvedCount = conversations.filter((c) => c.status === 'resolved').length;
 
   return (
-    <ModernAppShell onRefresh={loadData}>
-      <div className="flex-1 flex flex-col h-full overflow-y-auto">
+    <div className="flex-1 flex flex-col h-full overflow-y-auto">
         <div className="max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-5">
@@ -334,7 +332,6 @@ export default function ConsolidatedInboxPage() {
             )}
           </div>
         </div>
-      </div>
-    </ModernAppShell>
+    </div>
   );
 }

@@ -53,12 +53,6 @@ import {
 import { Conversation, Customer, Merchant, Order } from '@/lib/types';
 import { getCookie, setCookie } from 'cookies-next';
 
-interface ModernAppShellProps {
-  children: React.ReactNode;
-  activeConversationId?: string;
-  onRefresh?: () => void;
-}
-
 function getMerchantIcon(merchantId?: string, category?: string) {
   if (merchantId === 'merchant_music' || category === 'digital_music') {
     return Disc;
@@ -66,13 +60,14 @@ function getMerchantIcon(merchantId?: string, category?: string) {
   return ShoppingBag;
 }
 
-export function ModernAppShell({
-  children,
-  activeConversationId,
-  onRefresh,
-}: ModernAppShellProps) {
+export function ModernAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+
+  // Derive active conversation ID from URL path
+  const activeConversationId = pathname?.startsWith('/chat/')
+    ? pathname.split('/chat/')[1]?.split('/')[0]
+    : undefined;
 
   // Sidebar expanded state: initialize from cookie
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => {
@@ -91,6 +86,22 @@ export function ModernAppShell({
     }
     return true;
   });
+
+  // Sync sidebar state from cookie after client-side hydration.
+  // The useState initializer runs during SSR where window is undefined,
+  // so the cookie is never read there. This effect corrects the mismatch
+  // after mount to avoid the flash caused by remounting on every navigation.
+  useEffect(() => {
+    try {
+      const cookieVal = getCookie('sidebar_state');
+      if (cookieVal !== undefined && cookieVal !== null) {
+        setSidebarOpen(String(cookieVal) === 'true');
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
 
   const handleOpenChange = (open: boolean) => {
     setSidebarOpen(open);
@@ -162,6 +173,7 @@ export function ModernAppShell({
     const interval = setInterval(fetchData, 8000);
     return () => clearInterval(interval);
   }, [pathname, activeConversationId]);
+
 
   // Group conversations by merchant
   const groupedConversations = useMemo(() => {
@@ -259,30 +271,29 @@ export function ModernAppShell({
       className="h-screen w-screen overflow-hidden"
     >
       <Sidebar collapsible="icon" className="border-r border-border">
-        {/* Sidebar Header */}
-        <SidebarHeader className="p-3 border-b border-border/80">
-          <div className="flex items-center justify-between gap-2">
-            <Button
-              onClick={() => setIsNewTicketOpen(true)}
-              className="flex-1 h-9 gap-2 text-xs font-semibold shadow-xs justify-start px-3 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-8"
-              title="New Inquiry"
-            >
-              <Plus className="h-4 w-4 shrink-0" />
-              <span className="group-data-[collapsible=icon]:hidden">New Inquiry</span>
-            </Button>
-            <SidebarTrigger className="h-9 w-9 text-muted-foreground hover:text-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
-          </div>
-
-          {/* Quick Nav Links */}
-          <SidebarMenu className="mt-2">
+        {/* Sidebar Header: New Inquiry + Nav Links */}
+        <SidebarHeader className="border-b border-border/80 gap-0 pb-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="New Inquiry"
+                onClick={() => setIsNewTicketOpen(true)}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+              >
+                <Plus className="h-4 w-4" />
+                <span>New Inquiry</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
                 isActive={pathname === '/'}
                 tooltip="Home & Demos"
                 render={
-                  <NextLink href="/" className="flex items-center gap-2.5">
-                    <Home className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <span className="truncate">Home & Demos</span>
+                  <NextLink href="/">
+                    <Home className="h-4 w-4" />
+                    <span>Home & Demos</span>
                   </NextLink>
                 }
               />
@@ -292,9 +303,9 @@ export function ModernAppShell({
                 isActive={pathname === '/inbox'}
                 tooltip="All Conversations"
                 render={
-                  <NextLink href="/inbox" className="flex items-center gap-2.5">
-                    <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <span className="truncate">All Conversations</span>
+                  <NextLink href="/inbox">
+                    <MessageSquare className="h-4 w-4" />
+                    <span>All Conversations</span>
                   </NextLink>
                 }
               />
@@ -426,6 +437,10 @@ export function ModernAppShell({
 
       {/* Main App Content View Area */}
       <SidebarInset className="flex-1 flex flex-col h-full overflow-hidden bg-background">
+        {/* Compact sticky top-bar with sidebar toggle (only visible when sidebar is collapsed) */}
+        <div className="flex items-center h-10 px-3 border-b border-border/60 shrink-0 md:hidden peer-data-[state=expanded]:hidden" data-sidebar-inset-header>
+          <SidebarTrigger className="h-7 w-7 text-muted-foreground" />
+        </div>
         {children}
       </SidebarInset>
 

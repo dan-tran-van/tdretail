@@ -32,7 +32,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ModernAppShell } from '@/components/ModernAppShell';
 import { Conversation, Merchant, Message, Customer } from '@/lib/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -274,8 +273,8 @@ function ConversationThreadInner() {
   const isMusic = merchant?.category === 'digital_music';
 
   return (
-    <ModernAppShell activeConversationId={conversationId} onRefresh={() => loadThreadData(true)}>
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+    <>
+    <div className="flex-1 flex flex-col h-full overflow-hidden">
         {loading && !conversation ? (
           <div className="flex-1 flex items-center justify-center">
             <RefreshCw className="h-6 w-6 animate-spin text-primary" />
@@ -750,7 +749,7 @@ function ConversationThreadInner() {
           </div>
         </DialogContent>
       </Dialog>
-    </ModernAppShell>
+    </>
   );
 }
 
